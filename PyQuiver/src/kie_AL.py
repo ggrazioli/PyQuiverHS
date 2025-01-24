@@ -2,7 +2,7 @@
 import numpy as np
 #from quiver import System, Isotopologue, DEBUG
 import pandas as pd
-import quiver
+import quiver_AL
 import settings
 from file_writer import FileWriter
 from config import Config
@@ -31,15 +31,15 @@ class KIE_Calculation(object):
         self.path = path
 
         if type(gs) is str:
-            self.gs_system = quiver.System(gs, style=style)
-        elif type(gs) is quiver.System:
+            self.gs_system = quiver_AL.System(gs, style=style)
+        elif type(gs) is quiver_AL.System:
             self.gs_system = gs
         else:
             raise TypeError("gs argument must be either a filepath or quiver.System object.")
 
         if type(ts) is str:
-            self.ts_system = quiver.System(ts, style=style)
-        elif type(ts) is quiver.System:
+            self.ts_system = quiver_AL.System(ts, style=style)
+        elif type(ts) is quiver_AL.System:
             self.ts_system = ts
         else:
             raise TypeError("ts argument must be either a filepath or quiver.System object.")
@@ -180,16 +180,16 @@ class KIE_Calculation(object):
 
         mass_override_gs_masses, mass_override_ts_masses = self.build_mass_override_masses()
 
-        default_gs = quiver.Isotopologue("default", gs_system, mass_override_gs_masses)
-        default_ts = quiver.Isotopologue("default", ts_system, mass_override_ts_masses)
+        default_gs = quiver_AL.Isotopologue("default", gs_system, mass_override_gs_masses)
+        default_ts = quiver_AL.Isotopologue("default", ts_system, mass_override_ts_masses)
 
         for id_,iso in config.isotopologues.items():
             if id_ != config.mass_override_isotopologue:
                 gs_rules, ts_rules = self.compile_mass_rules(iso)
                 gs_masses = self.apply_mass_rules(mass_override_gs_masses, gs_rules)
                 ts_masses = self.apply_mass_rules(mass_override_ts_masses, ts_rules)
-                sub_gs = quiver.Isotopologue(id_, gs_system, gs_masses)
-                sub_ts = quiver.Isotopologue(id_, ts_system, ts_masses)
+                sub_gs = quiver_AL.Isotopologue(id_, gs_system, gs_masses)
+                sub_ts = quiver_AL.Isotopologue(id_, ts_system, ts_masses)
                 yield ((default_gs, sub_gs), (default_ts, sub_ts), ts_rules)
                
     def __str__(self):
@@ -257,12 +257,21 @@ class KIE(object):
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
 
-        uncorrected_kie = final_enth * final_entr
-        wigner_kie = ()
-        bell_kie = ()
 
-        print(f'Final KIE is {uncorrected_kie}')
-        return uncorrected_kie
+        light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.ts_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
+        heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = self.ts_tuple[1].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
+
+
+        uncorrected_kie = final_enth * final_entr
+        wigner_kie = uncorrected_kie * wigner(heavy_imag_freqs[0], light_imag_freqs[0], self.temperature)
+        bell_kie = uncorrected_kie * bell(heavy_imag_freqs[0], light_imag_freqs[0], self.temperature)
+
+        print(f'Final KIE is {uncorrected_kie}\n Wigner corrected KIE is {wigner_kie}\n Bell corrected KIE is {bell_kie}')
+        
+        kie_values = np.array([uncorrected_kie, wigner_kie, bell_kie])
+
+        return kie_values
+    
         # if ts_imag_ratios is not None:
         #     if self.eie_flag == -1:
         #         self.eie_flag = 0
@@ -283,31 +292,9 @@ class KIE(object):
 
 
     def apply_reference(self, reference_kie):
-        print('HERE 1:', type(self.value))
-        
-        # self.value = np.array([self.value])
+        print('HERE 1:', self.value, type(self.value))
 
-        # wigner_corrected = wigner(self.calculate_kie.ts_heavy_freqs, self.calculate_kie.ts_light_freqs, self.temperature)
-        # bell_corrected = bell(self.calculate_kie.ts_heavy_freqs, self.calculate_kie.ts_light_freqs, self.temperature)
-
-        # enth_ts_sums, entr_ts_sums, rpfr_ts, ts_imag_ratios, ts_heavy_freqs, ts_light_freqs = calculate_rpfr(self, self.ts_tuple, self.imag_threshold, self.scaling, self.temperature)
-
-        light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.ts_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
-        heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = self.ts_tuple[1].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
-
-        # wigner(heavy_imag_freqs[0], light_imag_freqs[0], temperature)
-        # bell(heavy_imag_freqs[0], light_imag_freqs[0], temperature)
-
-        wigner_corrected = self.value * wigner(heavy_imag_freqs[0], light_imag_freqs[0], self.temperature)             ## how do I cleanly write this w/o redefining everything as above? 
-        bell_corrected = self.value * bell(heavy_imag_freqs[0], light_imag_freqs[0], self.temperature)                 ## only works with imaginary frequencies 
-
-        print('HERE 2:', wigner_corrected, bell_corrected)      ## should we move the bell & wigner corrections up to calculate_kie? currently, bell and wigner functions are not being applied anywhere else
-
-        self.value = np.array([self.value, wigner_corrected, bell_corrected])
-
-        print('HERE 3:', self.value, type(self.value))
-
-        self.value /= reference_kie.value       ## here
+        self.value /= reference_kie.value
         return self.value
 
 
