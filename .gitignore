@@ -1,2 +1,2 @@
-./src/__pycache__/*
-./__pycache/*
+./PyQuiver/src/__pycache__/*
+./PyQuiver/__pycache/*
