@@ -257,9 +257,12 @@ class KIE(object):
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
 
-        the_kie = final_enth * final_entr
-        print(f'Final KIE is {the_kie}')
-        return the_kie
+        uncorrected_kie = final_enth * final_entr
+        wigner_kie = ()
+        bell_kie = ()
+
+        print(f'Final KIE is {uncorrected_kie}')
+        return uncorrected_kie
         # if ts_imag_ratios is not None:
         #     if self.eie_flag == -1:
         #         self.eie_flag = 0
@@ -304,7 +307,7 @@ class KIE(object):
 
         print('HERE 3:', self.value, type(self.value))
 
-        self.value /= reference_kie.value
+        self.value /= reference_kie.value       ## here
         return self.value
 
 
@@ -316,7 +319,7 @@ class KIE(object):
             else:
                 print(self.name)
 
-                print(self.value)       ## need apply_reference somewhere here
+                print('HERE 4:', self.value)       ## need apply_reference somewhere here
 
                 # print(len(self.value))
                 # print(self.value[0])
