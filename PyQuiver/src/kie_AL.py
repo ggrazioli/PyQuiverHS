@@ -257,7 +257,7 @@ class KIE(object):
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
 
-
+        ## find way to optimize this
         light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.ts_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
         heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = self.ts_tuple[1].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
 
@@ -292,9 +292,9 @@ class KIE(object):
 
 
     def apply_reference(self, reference_kie):
-        print('HERE 1:', self.value, type(self.value))
-
+        print('HERE 1:', self.value)
         self.value /= reference_kie.value
+        print('HERE 1 AFTER:', self.value)
         return self.value
 
 
@@ -304,15 +304,14 @@ class KIE(object):
             if self.eie_flag == 1:
                 return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} ".format("", self.name, self.value)
             else:
-                print(self.name)
-
-                print('HERE 4:', self.value)       ## need apply_reference somewhere here
+                print('HERE 2:', self.name)
+                print('HERE 3:', self.value)       ## still need apply_reference somewhere here
 
                 # print(len(self.value))
                 # print(self.value[0])
                 # print(self.value[1])
                 # print(self.value[2])
-                return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
+                return "TEST Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
         else:
             "KIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
 
