@@ -256,6 +256,7 @@ class KIE(object):
     def apply_reference(self, reference_kie):
         self.value /= reference_kie.value
         return self.value
+    
 
     def __str__(self):
         if self.value is not None:
