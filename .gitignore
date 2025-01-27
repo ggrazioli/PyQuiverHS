@@ -1,2 +1,3 @@
 ./PyQuiver/src/__pycache__/*
 ./PyQuiver/__pycache/*
+./outputs/
