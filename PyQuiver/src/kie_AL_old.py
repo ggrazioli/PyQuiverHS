@@ -290,7 +290,7 @@ class KIE(object):
         #     return eie
 
 
-
+    
     def apply_reference(self, reference_kie):
         print('REF VALUE:', reference_kie.value)
         print('HERE 1 BEFORE:', self.value)
@@ -312,6 +312,8 @@ class KIE(object):
                 # print(self.value[0])
                 # print(self.value[1])
                 # print(self.value[2])
+
+                # issue here
                 return "TEST Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
         else:
             "KIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
