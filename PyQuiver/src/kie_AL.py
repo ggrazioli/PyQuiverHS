@@ -1,6 +1,7 @@
 # This calculates KIEs based on the Bigeleisen-Mayer equation.
 import numpy as np
 #from quiver import System, Isotopologue, DEBUG
+import pandas as pd
 import quiver
 import settings
 from file_writer import FileWriter
@@ -11,7 +12,11 @@ from collections import OrderedDict
 from constants import PHYSICAL_CONSTANTS, REPLACEMENTS
 h  = PHYSICAL_CONSTANTS["h"]  # in J . s
 c  = PHYSICAL_CONSTANTS["c"]  # in cm . s
+rJ = PHYSICAL_CONSTANTS["rJ"]
+rCal = PHYSICAL_CONSTANTS["rCal"]
+r = PHYSICAL_CONSTANTS["r"]
 kB = PHYSICAL_CONSTANTS["kB"] # in J/K
+kcalToJ = PHYSICAL_CONSTANTS["kcalToJ"]
 
 class KIE_Calculation(object):
     def __init__(self, config, gs, ts, temperature, path, style="g09"):
@@ -38,9 +43,13 @@ class KIE_Calculation(object):
             self.ts_system = ts
         else:
             raise TypeError("ts argument must be either a filepath or quiver.System object.")
+        
+        print(vars(self.gs_system))
+        print('and')
+        print(vars(self.ts_system))
 
         # set the eie_flag to the recognized uninitialized value (used for checking if there are inconsistent calculation types)
-        self.eie_flag = -1
+        self.eie_flag = 0
 
         if settings.DEBUG != 0:
             print(self.config)
@@ -51,14 +60,14 @@ class KIE_Calculation(object):
             print("WARNING: config file uses the frequency_threshold parameter. This has been deprecated and low frequencies are dropped by linearity detection.")
 
         for p in self.make_isotopologues():
-            gs_tuple, ts_tuple = p
+            gs_tuple, ts_tuple, ts_mass = p
             name = gs_tuple[1].name
-            kie = KIE(name, gs_tuple, ts_tuple, temperature, path, self.config.scaling, self.config.imag_threshold)
+            kie = KIE(name, gs_tuple, ts_tuple, temperature, path, self.config.scaling, self.config.imag_threshold, ts_mass)
             KIES[name] = kie
         
         for name,k in KIES.items():
             if name != self.config.reference_isotopologue:
-                if self.eie_flag == -1:
+                if self.eie_flag == 0:
                     eie_flag_iso = name
                     self.eie_flag = k.eie_flag
                 else:
@@ -72,6 +81,8 @@ class KIE_Calculation(object):
                     k.apply_reference(KIES[self.config.reference_isotopologue])
 
         self.KIES = KIES
+        # for key, value in KIES:
+        #     print(f"{key} : {value}")
 
     # retrieves KIEs for autoquiver output
     # if report_tunnelling = True, the first number will be the inverted parabola KIE
@@ -79,7 +90,9 @@ class KIE_Calculation(object):
     def get_row(self, report_tunnelling=False):
         title_row = ""
         row = ""
-        keys = list(self.KIES.keys())
+        keys = list()
+        for key in self.KIES:
+            keys.append(key)
         
         # don't report the reference isotoplogue
         if self.config.reference_isotopologue != "default" and self.config.reference_isotopologue != "none":
@@ -158,6 +171,7 @@ class KIE_Calculation(object):
             replacement_mass = REPLACEMENTS[replacement_label]
             gs_rules[gs_atom_number-1] = replacement_mass
             ts_rules[ts_atom_number-1] = replacement_mass
+        print(f'And then we have ts_rules which is {ts_rules}')
         return gs_rules, ts_rules
 
     # make the requested isotopic substitutions
@@ -180,9 +194,10 @@ class KIE_Calculation(object):
                 ts_masses = self.apply_mass_rules(mass_override_ts_masses, ts_rules)
                 sub_gs = quiver.Isotopologue(id_, gs_system, gs_masses)
                 sub_ts = quiver.Isotopologue(id_, ts_system, ts_masses)
-                yield ((default_gs, sub_gs), (default_ts, sub_ts))
+                yield ((default_gs, sub_gs), (default_ts, sub_ts), ts_rules)
                
     def __str__(self):
+        print(self.eie_flag)
         string = "\n=== PyQuiver Analysis ===\n"
         if self.eie_flag == 0:
             string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
@@ -208,16 +223,17 @@ class KIE_Calculation(object):
 
 class KIE(object):
     # the constructor expects a tuple of the form yielded by make_isotopologue
-    def __init__(self, name, gs_tuple, ts_tuple, temperature, path, scaling, imag_threshold):
+    def __init__(self, name, gs_tuple, ts_tuple, temperature, path, scaling, imag_threshold, ts_mass):
         # copy fields
         # the associated calculation object useful for pulling config fields etc.
-        self.eie_flag = -1
+        self.eie_flag = 0
         self.name = name
         self.imag_threshold = imag_threshold
         self.gs_tuple, self.ts_tuple = gs_tuple, ts_tuple
         self.temperature = temperature
         self.path = path
         self.scaling = scaling
+        self.ts_mass = ts_mass
 
         if settings.DEBUG >= 2:
             print("Calculating KIE for isotopologue {0}.".format(name))
@@ -226,44 +242,74 @@ class KIE(object):
     def calculate_kie(self):
         if settings.DEBUG >= 2:
             print("  Calculating Reduced Partition Function Ratio for Ground State.")
-        rpfr_gs, gs_imag_ratios, gs_heavy_freqs, gs_light_freqs = calculate_rpfr(self.gs_tuple, self.imag_threshold, self.scaling, self.temperature)
+        enth_gs_sums, entr_gs_sums, rpfr_gs, gs_imag_ratios, gs_heavy_freqs, gs_light_freqs = calculate_rpfr(self, self.gs_tuple, self.imag_threshold, self.scaling, self.temperature)
         if settings.DEBUG >= 2:
             print("    rpfr_gs:", np.prod(rpfr_gs))
         if settings.DEBUG >= 2:
             print("  Calculating Reduced Partition Function Ratio for Transition State.")
 
-        rpfr_ts, ts_imag_ratios, ts_heavy_freqs, ts_light_freqs = calculate_rpfr(self.ts_tuple, self.imag_threshold, self.scaling, self.temperature)
+        enth_ts_sums, entr_ts_sums, rpfr_ts, ts_imag_ratios, ts_heavy_freqs, ts_light_freqs = calculate_rpfr(self, self.ts_tuple, self.imag_threshold, self.scaling, self.temperature)
         if settings.DEBUG >= 2:
             print("    rpfr_ts:", np.prod(rpfr_ts))
 
-        if ts_imag_ratios is not None:
-            if self.eie_flag == -1:
-                self.eie_flag = 0
-            else:
-                raise ValueError("quiver attempted to run a KIE calculation after an EIE calculation. Check the frequency threshold.")
+        final_enth_sum = enth_ts_sums - enth_gs_sums
+        final_enth_zpe = np.exp(final_enth_sum[0]/(r*self.temperature))
+        final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
+        final_enth = final_enth_zpe * final_enth_vib
 
-            kies = ts_imag_ratios * rpfr_gs/rpfr_ts
-            return kies
-        else:
-            if self.eie_flag == -1:
-                self.eie_flag = 1
-            else:
-                raise ValueError("quiver attempted to run a KIE calculation after an EIE calculation. Check the frequency threshold.")
+        final_entr_sum = entr_ts_sums - entr_gs_sums
+        final_entr_vib = np.exp(final_entr_sum[0]/rCal)
+        final_entr_rot = np.exp(final_entr_sum[1]/rCal)
+        final_entr = final_entr_vib * final_entr_rot
+
+        ## find way to optimize this
+        light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.ts_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
+        heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = self.ts_tuple[1].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
+
+
+        uncorrected_kie = final_enth * final_entr
+        wigner_kie = uncorrected_kie * wigner(heavy_imag_freqs[0], light_imag_freqs[0], self.temperature)
+        bell_kie = uncorrected_kie * bell(heavy_imag_freqs[0], light_imag_freqs[0], self.temperature)
+
+        print(f'Final KIE is {uncorrected_kie} \nWigner corrected KIE is {wigner_kie} \nBell corrected KIE is {bell_kie}')
+        
+        kie_values = np.array([uncorrected_kie, wigner_kie, bell_kie])
+
+        return kie_values
+    
+        # if ts_imag_ratios is not None:
+        #     if self.eie_flag == -1:
+        #         self.eie_flag = 0
+        #     else:
+        #         raise ValueError("quiver attempted to run a KIE calculation after an EIE calculation. Check the frequency threshold.")
+
+        #     kies = ts_imag_ratios * rpfr_gs/rpfr_ts
+        #     return kies
+        # else:
+        #     if self.eie_flag == -1:
+        #         self.eie_flag = 1
+        #     else:
+        #         raise ValueError("quiver attempted to run a KIE calculation after an EIE calculation. Check the frequency threshold.")
             
-            eie = rpfr_gs/rpfr_ts
-            return eie
+        #     eie = rpfr_gs/rpfr_ts
+        #     return eie
 
     def apply_reference(self, reference_kie):
         self.value /= reference_kie.value
         return self.value
-    
 
     def __str__(self):
         if self.value is not None:
             if self.eie_flag == 1:
                 return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} ".format("", self.name, self.value)
             else:
+            #     print(self.name)
+            #     print(len(self.value))
+            #     print(self.value[0])
+            #     print(self.value[1])
+            #     print(self.value[2])
                 return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
+                # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f}".format("", self.name, self.value)
         else:
             "KIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
 
@@ -277,16 +323,19 @@ def u(wavenumber, temperature):
     return h*c*wavenumber/(kB*temperature)
 
 def vibrational_temp(wavenumber):
-    return h*c*wavenumber/kB
+    return h*c*wavenumber*rJ/(kB*kcalToJ)
 
 # calculates the reduced isotopic function ratio for a species (Wolfsberg eqn 4.79)
 # assuming the symmetry ratio is 1/1
 # uses the Teller-Redlich product rule
 # returns 1 x n array of the partition function ratios, where n is the number of frequencies
 # frequencies below frequency_threshold will be ignored and will not be included in the array
-def partition_components(freqs_heavy, freqs_light, temperature):
+def partition_components(self, freqs_heavy, freqs_light, temperature):
     components = []
+    enth_components = []
+    entr_components = []
     i = 0
+    print(f'The value of ts_mass is {self.ts_mass.values()}')
     for wavenumber_light, wavenumber_heavy in zip(freqs_light, freqs_heavy):
         i += 1
         product_factor = wavenumber_heavy/wavenumber_light
@@ -294,20 +343,84 @@ def partition_components(freqs_heavy, freqs_light, temperature):
         u_heavy = u(wavenumber_heavy, temperature)
         excitation_factor = (1.0-np.exp(-u_light))/(1.0-np.exp(-u_heavy))
         ZPE_factor = np.exp(0.5*(u_light-u_heavy))
-        # H_ZPE = vibrational_temp(wavenumber_heavy - wavenumber_light)/2
-        # H_vib = vibrational_temp(wavenumber_heavy - wavenumber_light)/(np.exp(u_heavy - u_light) - 1)
-        components.append([product_factor,excitation_factor,ZPE_factor])
-        if settings.DEBUG >= 3:
+
+        H_ZPE_h = vibrational_temp(wavenumber_heavy)/2
+        H_ZPE_l = vibrational_temp(wavenumber_light)/2
+        H_vib_h = vibrational_temp(wavenumber_heavy)/(np.exp(u_heavy) - 1)
+        H_vib_l = vibrational_temp(wavenumber_light)/(np.exp(u_light) - 1)
+
+        S_vib_h = rCal*(((u_heavy/(np.exp(u_heavy) - 1))) - np.log(1-np.exp(-u_heavy)))
+        S_vib_l = rCal*(((u_light/(np.exp(u_light) - 1))) - np.log(1-np.exp(-u_light)))
+
+        S_rot_h = 1
+        S_rot_l = 1
+
+        components.append([product_factor, excitation_factor, ZPE_factor])
+        enth_components.append([H_ZPE_h-H_ZPE_l, H_vib_h-H_vib_l])
+        entr_components.append([S_vib_h-S_vib_l, S_rot_h - S_rot_l])
+        
+        print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    S_vib_h: %9.5f  S_vib_l: %9.5f" % (i, wavenumber_light, wavenumber_heavy, S_vib_h, S_vib_l))
+        if settings.DEBUG >= 1:
             overall_factor = product_factor * excitation_factor * ZPE_factor
-            print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    FRQ RATIO: %9.5f    ZPE FACTOR: %9.5f    CONTRB TO RIPF: %9.5f" % (i, wavenumber_light, wavenumber_heavy, product_factor, ZPE_factor, overall_factor))
+            # print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    FRQ RATIO: %9.5f    ZPE FACTOR: %9.5f    CONTRB TO RIPF: %9.5f" % (i, wavenumber_light, wavenumber_heavy, product_factor, ZPE_factor, overall_factor))
+            # print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    H_ZPE_h: %9.5f   H_ZPE_l: %9.5f H_vib_h: %9.5f H_vib_l: %9.5f " % (i, wavenumber_light, wavenumber_heavy, H_ZPE_h, H_ZPE_l, H_vib_h, H_vib_l))
+            # print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    S_vib_h: %9.5f  S_vib_l: %9.5f" % (i, wavenumber_light, wavenumber_heavy, S_vib_h, S_vib_l))
             #if overall_factor < 0.99 or overall_factor > 1.01:
             #    print " *"
             #else:
             #    print
-    return np.array(components)
+
+    return np.array(components), np.array(enth_components), np.array(entr_components)
+
+def rot_temps_swapped():
+    row1 = {'atom':['H','C','O','N','H','H'], 
+        'atom_num':[1,6,8,7,1,1], 
+        'mass':[1.00783, 12.00000, 15.99491, 14.00307, 2.01410, 1.00783], #amu
+        'x':[0.309915, 0.202735, 1.145933, -1.156046, -1.300366, -1.301101], #positions in Angstroms
+        'y':[1.488070, 0.406125, -0.308020, -0.030953, -0.621913, -0.622071], 
+        'z':[0.000065, -0.000037, -0.000019, 0.000002, 0.800556, -0.800269]}
+    atoms_DF = pd.DataFrame(row1)
+    I_data = get_I_data(atoms_DF)  
+    theta_r_xyz(I_data) 
+
+def get_I_data(atomDF):
+    center_of_mass = np.zeros(3)
+    mass_tot = 0
+    for index, row in atomDF.iterrows():
+        center_of_mass = center_of_mass + row['mass']*np.array(row[3:6])
+        mass_tot = mass_tot + row['mass']
+    center_of_mass = 1/mass_tot * center_of_mass
+    centeredXYZ = atomDF[['x','y','z']].sub(center_of_mass, axis=1)
+    atomDF_centered = pd.concat([atomDF[['atom','atom_num','mass']], centeredXYZ], axis=1)
+    Ixx, Iyy, Izz, Ixy, Ixz, Iyz = 0,0,0,0,0,0
+    for index, row in atomDF_centered.iterrows():
+        Ixx = Ixx + row['mass']*(row['y']**2 + row['z']**2)
+        Iyy = Iyy + row['mass']*(row['x']**2 + row['z']**2)
+        Izz = Izz + row['mass']*(row['x']**2 + row['y']**2)
+        Ixy = Ixy - row['mass']*row['x']*row['y']
+        Ixz = Ixz - row['mass']*row['z']*row['y']
+        Iyz = Iyz - row['mass']*row['y']*row['z']
+    Iyz, Izx, Izy = Ixy, Ixz, Iyz
+    I = np.matrix([[Ixx, Ixy, Ixz],[Iyz, Iyy, Iyz],[Izx, Izy, Izz]])
+    eVals, eVecs = np.linalg.eigh(I)
+    return({'I':I, 'eVals':eVals, 'eVecs':eVecs})
+
+def theta_r_xyz(I_data):
+    # Defining these constants locally for portability, but it
+    # might be better to pull from global constants later.
+    h = (6.62606957 * 10**-34) #J*s
+    kB = 1.3806488 * 10**-23 #J/K
+    bohr_in_ang = 0.52917721092 # angstrom/bohr
+    bohr_in_m = bohr_in_ang / 10**10 # 
+    kg_per_amu = 1.660538921 * 10**-27 #kg/amu
+    m_per_angstrom = 10**-10 #m/Angstrom
+    
+    eVals_kg_m2 = kg_per_amu * m_per_angstrom**2 * I_data['eVals']
+    theta_xyz = [h**2/(8 * np.pi**2 * I * kB) for I in eVals_kg_m2]
+    return(theta_xyz)
 
 # tup is a tuple of a form (light_isotopologue, heavy_isotopologue)
-def calculate_rpfr(tup, imag_threshold, scaling, temperature):
+def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
     # calculate_frequencies gives tuples of the form (small_freqs, imaginary_freqs, freqs)
     light_small_freqs, light_imag_freqs, light_freqs, light_num_small = tup[0].calculate_frequencies(imag_threshold, scaling=scaling)
     heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = tup[1].calculate_frequencies(imag_threshold, scaling=scaling)
@@ -353,13 +466,13 @@ def calculate_rpfr(tup, imag_threshold, scaling, temperature):
         bell_imag_ratio = raw_imag_ratio * bell(heavy_imag_freqs[0], light_imag_freqs[0], temperature)
         imag_ratios = np.array([raw_imag_ratio, wigner_imag_ratio, bell_imag_ratio])
 
-    partition_factors = partition_components(heavy_freqs, light_freqs, temperature)
+    partition_factors, enth_factors, entr_factors = partition_components(self, heavy_freqs, light_freqs, temperature)
 
     if settings.DEBUG >= 2:
         factors = np.prod(partition_factors, axis=0)
         print("{3: ^8}Product Factor: {0}\n{3: ^8}Excitation Factor: {1}\n{3: ^8}ZPE Factor: {2}\n{3: ^8}".format(factors[0], factors[1], factors[2],""))
 
-    return (np.prod(partition_factors), imag_ratios, np.array(heavy_freqs), np.array(light_freqs))
+    return (np.sum(enth_factors, axis=0), np.sum(entr_factors, axis=0), np.prod(partition_factors), imag_ratios, np.array(heavy_freqs), np.array(light_freqs))
 
 # calculates the Wigner tunnelling correction
 # multiplies the KIE by a factor of (1+u_H^2/24)/(1+u_D^2/24)
