@@ -49,7 +49,7 @@ class KIE_Calculation(object):
         print(vars(self.ts_system))
 
         # set the eie_flag to the recognized uninitialized value (used for checking if there are inconsistent calculation types)
-        self.eie_flag = -1
+        self.eie_flag = 0
 
         if settings.DEBUG != 0:
             print(self.config)
@@ -67,7 +67,7 @@ class KIE_Calculation(object):
         
         for name,k in KIES.items():
             if name != self.config.reference_isotopologue:
-                if self.eie_flag == -1:
+                if self.eie_flag == 0:
                     eie_flag_iso = name
                     self.eie_flag = k.eie_flag
                 else:
@@ -81,6 +81,8 @@ class KIE_Calculation(object):
                     k.apply_reference(KIES[self.config.reference_isotopologue])
 
         self.KIES = KIES
+        # for key, value in KIES:
+        #     print(f"{key} : {value}")
 
     # retrieves KIEs for autoquiver output
     # if report_tunnelling = True, the first number will be the inverted parabola KIE
@@ -88,7 +90,9 @@ class KIE_Calculation(object):
     def get_row(self, report_tunnelling=False):
         title_row = ""
         row = ""
-        keys = list(self.KIES.keys())
+        keys = list()
+        for key in self.KIES:
+            keys.append(key)
         
         # don't report the reference isotoplogue
         if self.config.reference_isotopologue != "default" and self.config.reference_isotopologue != "none":
@@ -193,6 +197,7 @@ class KIE_Calculation(object):
                 yield ((default_gs, sub_gs), (default_ts, sub_ts), ts_rules)
                
     def __str__(self):
+        print(self.eie_flag)
         string = "\n=== PyQuiver Analysis ===\n"
         if self.eie_flag == 0:
             string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
@@ -221,7 +226,7 @@ class KIE(object):
     def __init__(self, name, gs_tuple, ts_tuple, temperature, path, scaling, imag_threshold, ts_mass):
         # copy fields
         # the associated calculation object useful for pulling config fields etc.
-        self.eie_flag = -1
+        self.eie_flag = 0
         self.name = name
         self.imag_threshold = imag_threshold
         self.gs_tuple, self.ts_tuple = gs_tuple, ts_tuple
