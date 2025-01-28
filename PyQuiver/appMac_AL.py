@@ -149,6 +149,10 @@ class KIE(tk.Frame):
                     df1 = pd.read_csv(StringIO(filtered_data), sep="\s+", skiprows=3)
                     df1 = df1.iloc[1:]
                     df1['Temperature'] = float(lines[0].split()[1][:-1])
+
+                    print("df1 before concatenation:", df1)
+                    print("df before concatenation:", df)
+                    
                     df = pd.concat([df, df1])
         
         #df = df.drop(columns=['Isotopologue'])
