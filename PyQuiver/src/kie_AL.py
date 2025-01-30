@@ -200,7 +200,8 @@ class KIE_Calculation(object):
         print(self.eie_flag)
         string = "\n=== PyQuiver Analysis ===\n"
         if self.eie_flag == 0:
-            string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
+            # string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
+            string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell     Enthalpy        Entropy\n"      ## AL: fix spacing
             string += "                                                              KIE           KIE              KIE"
         else:
             string += "Isotopologue        Name                                   EIE"
@@ -238,6 +239,9 @@ class KIE(object):
         if settings.DEBUG >= 2:
             print("Calculating KIE for isotopologue {0}.".format(name))
         self.value = self.calculate_kie()
+
+        ## AL addition:
+        self.components = self.calculate_kie_components()
 
     def calculate_kie(self):
         if settings.DEBUG >= 2:
@@ -294,8 +298,40 @@ class KIE(object):
         #     eie = rpfr_gs/rpfr_ts
         #     return eie
 
+
+
+    def calculate_kie_components(self):             ## AL: temporary addition -- streamline later by adding under calculate_kie?
+        if settings.DEBUG >= 2:
+            print("  Calculating Reduced Partition Function Ratio for Ground State.")
+        enth_gs_sums, entr_gs_sums, rpfr_gs, gs_imag_ratios, gs_heavy_freqs, gs_light_freqs = calculate_rpfr(self, self.gs_tuple, self.imag_threshold, self.scaling, self.temperature)
+        if settings.DEBUG >= 2:
+            print("    rpfr_gs:", np.prod(rpfr_gs))
+        if settings.DEBUG >= 2:
+            print("  Calculating Reduced Partition Function Ratio for Transition State.")
+
+        enth_ts_sums, entr_ts_sums, rpfr_ts, ts_imag_ratios, ts_heavy_freqs, ts_light_freqs = calculate_rpfr(self, self.ts_tuple, self.imag_threshold, self.scaling, self.temperature)
+        if settings.DEBUG >= 2:
+            print("    rpfr_ts:", np.prod(rpfr_ts))
+
+        final_enth_sum = enth_ts_sums - enth_gs_sums
+        final_enth_zpe = np.exp(final_enth_sum[0]/(r*self.temperature))
+        final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
+        final_enth = final_enth_zpe * final_enth_vib
+
+        final_entr_sum = entr_ts_sums - entr_gs_sums
+        final_entr_vib = np.exp(final_entr_sum[0]/rCal)
+        final_entr_rot = np.exp(final_entr_sum[1]/rCal)
+        final_entr = final_entr_vib * final_entr_rot
+
+        return final_enth, final_entr
+
+
+
     def apply_reference(self, reference_kie):
+        # print('self.value before:', self.value)
+        # print('reference_kie used:', reference_kie.value)
         self.value /= reference_kie.value
+        # print('self.value after:', self.value)
         return self.value
 
     def __str__(self):
@@ -308,7 +344,8 @@ class KIE(object):
             #     print(self.value[0])
             #     print(self.value[1])
             #     print(self.value[2])
-                return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
+                # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
+                return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f} {5: ^17.8f} {6: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2], self.components[0], self.components[1])
                 # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f}".format("", self.name, self.value)
         else:
             "KIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
