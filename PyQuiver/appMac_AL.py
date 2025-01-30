@@ -133,7 +133,9 @@ class KIE(tk.Frame):
             num = num + increment
             print()
 
-        column_names = ['Isotopologue', 'Name', 'Uncorrected', 'Wigner', 'Bell']
+
+        # column_names = ['Isotopologue', 'Name', 'Uncorrected', 'Wigner', 'Bell']
+        column_names = ['Isotopologue', 'Name', 'Uncorrected', 'Wigner', 'Bell', 'Enthalpy', 'Entropy']
         df = pd.DataFrame(columns=column_names)
 
         file_list = os.listdir(folder_path)
@@ -143,8 +145,12 @@ class KIE(tk.Frame):
                 with open(path, 'r') as file:
                     file_contents = file.read()
                     lines = str(file_contents).strip().split("\n")
-                    filtered_lines = [line for line in lines if len(line.split()) <= 5]
+                    # filtered_lines = [line for line in lines if len(line.split()) <= 5]
+                    filtered_lines = [line for line in lines if len(line.split()) <= 7]
                     filtered_data = "\n".join(filtered_lines)
+
+                    print('FILTERED DATA', filtered_data)
+
                     df1 = pd.DataFrame(columns=column_names)
                     df1 = pd.read_csv(StringIO(filtered_data), sep="\s+", skiprows=3)
                     df1 = df1.iloc[1:]
