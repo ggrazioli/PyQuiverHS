@@ -10,6 +10,8 @@ from config import Config
 from constants import DEFAULT_MASSES
 from collections import OrderedDict
 
+from kie import calculate_rpfr
+
 from constants import PHYSICAL_CONSTANTS, REPLACEMENTS
 h  = PHYSICAL_CONSTANTS["h"]  # in J . s
 c  = PHYSICAL_CONSTANTS["c"]  # in cm . s
@@ -201,7 +203,7 @@ class EIE(object):
         self.scaling = scaling
         self.prod_mass = prod_mass
 
-         if settings.DEBUG >= 2:
+        if settings.DEBUG >= 2:
             print("Calculating EIE for isotopologue {0}.".format(name))
         self.value = self.calculate_eie()
 
@@ -209,32 +211,30 @@ class EIE(object):
         self.components = self.calculate_eie_components()
 
     def calculate_eie(self):
-        if settings.DEBUG >= 2:
-            print("  Calculating Reduced Partition Function Ratio for Reactants.")
-        enth_react_sums, entr_react_sums, rpfr_react, react_imag_ratios, react_heavy_freqs, react_light_freqs = calculate_rpfr(self, self.react_tuple, self.imag_threshold, self.scaling, self.temperature)
-        if settings.DEBUG >= 2:
-            print("    rpfr_react:", np.prod(rpfr_react))
-        if settings.DEBUG >= 2:
-            print("  Calculating Reduced Partition Function Ratio for Products.")
+        # if settings.DEBUG >= 2:
+        #     print("  Calculating Reduced Partition Function Ratio for Reactants.")
+        # enth_react_sums, entr_react_sums, rpfr_react, react_imag_ratios, react_heavy_freqs, react_light_freqs = calculate_rpfr(self, self.react_tuple, self.imag_threshold, self.scaling, self.temperature)
+        # if settings.DEBUG >= 2:
+        #     print("    rpfr_react:", np.prod(rpfr_react))
+        # if settings.DEBUG >= 2:
+        #     print("  Calculating Reduced Partition Function Ratio for Products.")
 
-        enth_prod_sums, entr_prod_sums, rpfr_prod, prod_imag_ratios, prod_heavy_freqs, prod_light_freqs = calculate_rpfr(self, self.prod_tuple, self.imag_threshold, self.scaling, self.temperature)
-        if settings.DEBUG >= 2:
-            print("    rpfr_prod:", np.prod(rpfr_prod))
+        # enth_prod_sums, entr_prod_sums, rpfr_prod, prod_imag_ratios, prod_heavy_freqs, prod_light_freqs = calculate_rpfr(self, self.prod_tuple, self.imag_threshold, self.scaling, self.temperature)
+        # if settings.DEBUG >= 2:
+        #     print("    rpfr_prod:", np.prod(rpfr_prod))
 
-        final_enth_sum = enth_prod_sums - enth_react_sums
-        final_enth_zpe = np.exp(final_enth_sum[0]/(r*self.temperature))
-        final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
-        final_enth = final_enth_zpe * final_enth_vib
+        # final_enth_sum = enth_prod_sums - enth_react_sums
+        # final_enth_zpe = np.exp(final_enth_sum[0]/(r*self.temperature))
+        # final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
+        # final_enth = final_enth_zpe * final_enth_vib
 
-        final_entr_sum = entr_prod_sums - entr_react_sums
-        final_entr_vib = np.exp(final_entr_sum[0]/rCal)
-        final_entr_rot = np.exp(final_entr_sum[1]/rCal)
-        final_entr = final_entr_vib * final_entr_rot
+        # final_entr_sum = entr_prod_sums - entr_react_sums
+        # final_entr_vib = np.exp(final_entr_sum[0]/rCal)
+        # final_entr_rot = np.exp(final_entr_sum[1]/rCal)
+        # final_entr = final_entr_vib * final_entr_rot
 
-        ## find way to optimize this
-        light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.prod_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
-        heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = self.prod_tuple[1].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
-
+        final_enth = self.components[0]
+        final_entr = self.components[1]
 
         eie = final_enth * final_entr
 
@@ -282,4 +282,5 @@ class EIE(object):
             return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} ".format("", self.name, self.value)
         else:
             "EIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
+
 
