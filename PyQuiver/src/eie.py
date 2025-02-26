@@ -186,3 +186,100 @@ class EIE_Calculation(object):
 
         return string
 
+
+class EIE(object):
+    # the constructor expects a tuple of the form yielded by make_isotopologue
+    def __init__(self, name, react_tuple, prod_tuple, temperature, path, scaling, imag_threshold, prod_mass):
+        # copy fields
+        # the associated calculation object useful for pulling config fields etc.
+        # self.eie_flag = 0
+        self.name = name
+        self.imag_threshold = imag_threshold
+        self.react_tuple, self.prod_tuple = react_tuple, prod_tuple
+        self.temperature = temperature
+        self.path = path
+        self.scaling = scaling
+        self.prod_mass = prod_mass
+
+         if settings.DEBUG >= 2:
+            print("Calculating EIE for isotopologue {0}.".format(name))
+        self.value = self.calculate_eie()
+
+        ## AL addition:
+        self.components = self.calculate_eie_components()
+
+    def calculate_eie(self):
+        if settings.DEBUG >= 2:
+            print("  Calculating Reduced Partition Function Ratio for Reactants.")
+        enth_react_sums, entr_react_sums, rpfr_react, react_imag_ratios, react_heavy_freqs, react_light_freqs = calculate_rpfr(self, self.react_tuple, self.imag_threshold, self.scaling, self.temperature)
+        if settings.DEBUG >= 2:
+            print("    rpfr_react:", np.prod(rpfr_react))
+        if settings.DEBUG >= 2:
+            print("  Calculating Reduced Partition Function Ratio for Products.")
+
+        enth_prod_sums, entr_prod_sums, rpfr_prod, prod_imag_ratios, prod_heavy_freqs, prod_light_freqs = calculate_rpfr(self, self.prod_tuple, self.imag_threshold, self.scaling, self.temperature)
+        if settings.DEBUG >= 2:
+            print("    rpfr_prod:", np.prod(rpfr_prod))
+
+        final_enth_sum = enth_prod_sums - enth_react_sums
+        final_enth_zpe = np.exp(final_enth_sum[0]/(r*self.temperature))
+        final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
+        final_enth = final_enth_zpe * final_enth_vib
+
+        final_entr_sum = entr_prod_sums - entr_react_sums
+        final_entr_vib = np.exp(final_entr_sum[0]/rCal)
+        final_entr_rot = np.exp(final_entr_sum[1]/rCal)
+        final_entr = final_entr_vib * final_entr_rot
+
+        ## find way to optimize this
+        light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.prod_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
+        heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = self.prod_tuple[1].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
+
+
+        eie = final_enth * final_entr
+
+        print(f'Final KIE is {eie}')
+
+        return eie
+    
+
+    def calculate_eie_components(self):             ## AL: temporary addition -- streamline later by adding under calculate_eie?
+        if settings.DEBUG >= 2:
+            print("  Calculating Reduced Partition Function Ratio for Reactants.")
+        enth_react_sums, entr_react_sums, rpfr_react, react_imag_ratios, react_heavy_freqs, react_light_freqs = calculate_rpfr(self, self.react_tuple, self.imag_threshold, self.scaling, self.temperature)
+        if settings.DEBUG >= 2:
+            print("    rpfr_react:", np.prod(rpfr_react))
+        if settings.DEBUG >= 2:
+            print("  Calculating Reduced Partition Function Ratio for Products.")
+
+        enth_prod_sums, entr_prod_sums, rpfr_prod, prod_imag_ratios, prod_heavy_freqs, prod_light_freqs = calculate_rpfr(self, self.prod_tuple, self.imag_threshold, self.scaling, self.temperature)
+        if settings.DEBUG >= 2:
+            print("    rpfr_prod:", np.prod(rpfr_prod))
+
+        final_enth_sum = enth_prod_sums - enth_react_sums
+        final_enth_zpe = np.exp(final_enth_sum[0]/(r*self.temperature))
+        final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
+        final_enth = final_enth_zpe * final_enth_vib
+
+        final_entr_sum = entr_prod_sums - entr_react_sums
+        final_entr_vib = np.exp(final_entr_sum[0]/rCal)
+        final_entr_rot = np.exp(final_entr_sum[1]/rCal)
+        final_entr = final_entr_vib * final_entr_rot
+
+        return final_enth, final_entr
+    
+
+    def apply_reference(self, reference_eie):
+        # print('self.value before:', self.value)
+        # print('reference_eie used:', reference_eie.value)
+        self.value /= reference_eie.value
+        # print('self.value after:', self.value)
+        return self.value
+
+    def __str__(self):
+        if self.value is not None:
+            # if self.eie_flag == 1:
+            return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} ".format("", self.name, self.value)
+        else:
+            "EIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
+
