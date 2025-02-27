@@ -10,7 +10,10 @@ from config import Config
 from constants import DEFAULT_MASSES
 from collections import OrderedDict
 
-from kie import calculate_rpfr
+## DS: importing shared functions from kie.py.
+##     In the final version, remove _[initial] part of the file name
+
+from kie_AL.py import calculate_rpfr
 
 from constants import PHYSICAL_CONSTANTS, REPLACEMENTS
 h  = PHYSICAL_CONSTANTS["h"]  # in J . s
@@ -22,7 +25,8 @@ kB = PHYSICAL_CONSTANTS["kB"] # in J/K
 kcalToJ = PHYSICAL_CONSTANTS["kcalToJ"]
 
 class EIE_Calculation(object):
-    def __init__(self, config, react, prod, temperature, path, style="g90"):
+    ## DS: what is g90 style and is it applicable to EIE calcualtions?
+    def __init__(self, config, react, prod, temperature, path, style="g90") -> None:
         if type(config) is str:
             self.config = Config(config)
         elif type(config) is Config:
@@ -208,37 +212,20 @@ class EIE(object):
         self.value = self.calculate_eie()
 
         ## AL addition:
-        self.components = self.calculate_eie_components()
+        ## DS Comment: calling this function in the intializaiton will cause the program to prematurely run the calculation. Is this the expected behaviour?
+        # self.components = self.calculate_eie_components()
 
     def calculate_eie(self):
-        # if settings.DEBUG >= 2:
-        #     print("  Calculating Reduced Partition Function Ratio for Reactants.")
-        # enth_react_sums, entr_react_sums, rpfr_react, react_imag_ratios, react_heavy_freqs, react_light_freqs = calculate_rpfr(self, self.react_tuple, self.imag_threshold, self.scaling, self.temperature)
-        # if settings.DEBUG >= 2:
-        #     print("    rpfr_react:", np.prod(rpfr_react))
-        # if settings.DEBUG >= 2:
-        #     print("  Calculating Reduced Partition Function Ratio for Products.")
+        # final_enth = self.components[0]
+        # final_entr = self.components[1]
 
-        # enth_prod_sums, entr_prod_sums, rpfr_prod, prod_imag_ratios, prod_heavy_freqs, prod_light_freqs = calculate_rpfr(self, self.prod_tuple, self.imag_threshold, self.scaling, self.temperature)
-        # if settings.DEBUG >= 2:
-        #     print("    rpfr_prod:", np.prod(rpfr_prod))
-
-        # final_enth_sum = enth_prod_sums - enth_react_sums
-        # final_enth_zpe = np.exp(final_enth_sum[0]/(r*self.temperature))
-        # final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
-        # final_enth = final_enth_zpe * final_enth_vib
-
-        # final_entr_sum = entr_prod_sums - entr_react_sums
-        # final_entr_vib = np.exp(final_entr_sum[0]/rCal)
-        # final_entr_rot = np.exp(final_entr_sum[1]/rCal)
-        # final_entr = final_entr_vib * final_entr_rot
-
-        final_enth = self.components[0]
-        final_entr = self.components[1]
+        components = self.calculate_eie_components()
+        final_enth = components[0]
+        final_entr = components[1]
 
         eie = final_enth * final_entr
 
-        print(f'Final KIE is {eie}')
+        print(f'Final EIE is {eie}')
 
         return eie
     
@@ -266,7 +253,7 @@ class EIE(object):
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
 
-        return final_enth, final_entr
+        return (final_enth, final_entr)
     
 
     def apply_reference(self, reference_eie):
@@ -282,5 +269,3 @@ class EIE(object):
             return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} ".format("", self.name, self.value)
         else:
             "EIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
-
-
