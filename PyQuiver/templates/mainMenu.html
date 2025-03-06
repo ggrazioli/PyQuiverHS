@@ -33,6 +33,7 @@
             background-color: #4d7c7b;
             color: white;
             font-size: 18px;
+            text-decoration: none;
             padding: 50px;
             width: 200px;
             text-align: center;
@@ -52,8 +53,10 @@
     <div class="container">
         <h2>Welcome to QuiverHS!</h2>
         <div class="buttons">
-            <div class="button">KIE Calculations</div>
-            <div class="button">EIE Calculations</div>
+            <a href="{{ url_for('kie') }}" class="button">KIE Calculations</a>
+            <a href="{{ url_for('eie') }}" class="button">EIE Calculations</a>
+            <!-- <div class="button">KIE Calculations</div>
+            <div class="button">EIE Calculations</div> -->
         </div>
     </div>
 
