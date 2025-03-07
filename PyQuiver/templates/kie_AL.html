@@ -1,0 +1,21 @@
+<body>
+    <h2>KIE Calculations</h2>
+    <p>Start your KIE calculations here!</p>
+
+    <form action="{{ url_for('validate_data') }}" method="post" enctype="multipart/form-data">
+        <label for="config_file">Configuration File (Valid Format: .config):</label>
+        <input type="file" name="config_file" accept=".config" required><br><br>
+        
+        <label for="file1">Ground State File (Valid Format: .log, .out):</label>
+        <input type="file" name="file1" accept=".out,.log" required><br><br>
+
+        <label for="file2">Transition State File (Valid Format: .log, .out):</label>
+        <input type="file" name="file2" accept=".out,.log" required><br><br>
+        
+        <button type="submit">Submit</button>
+    </form>
+
+
+    <a href="{{ url_for('home') }}">Back to Home</a>
+
+</body>
