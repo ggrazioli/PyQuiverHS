@@ -32,7 +32,7 @@
             background-color: #3d615d;
         }
         input {
-            width: 100px;
+            width: 150px;
             padding: 5px;
             margin: 5px;
             text-align: center;
@@ -62,15 +62,15 @@
         <form action="/kie_calculate" method="post">
             <div class="label">
                 <span>Configuration File</span>
-                <input type="file" name="config_file">
+                <input type="file" name="config_file" accept=".config" required>
             </div>
             <div class="label">
                 <span>Ground State File</span>
-                <input type="file" name="ground_state_file">
+                <input type="file" name="ground_state_file" accept=".out,.log" required>
             </div>
             <div class="label">
                 <span>Transition State File</span>
-                <input type="file" name="transition_state_file">
+                <input type="file" name="transition_state_file" accept=".out,.log" required>
             </div>
             
             <div class="input-group">
