@@ -8,14 +8,22 @@ VALID_EXTENSIONS = {
     'file2': ['.out', '.log'],
 }
 
+
+# Load the main page
 @app.route('/')
 def home():
     return render_template('mainMenu.html')
 
-@app.route('/kie')
+# Load the KIE Calculation page
+@app.route('/kie', methods=['GET'])
 def kie():
     return render_template('kie.html')
 
+@app.route('/kie_calculate', methods=['POST'])
+def calculate_kie():
+    
+
+# Load the EIE page
 @app.route('/eie')
 def eie():
     return render_template('eie.html')
