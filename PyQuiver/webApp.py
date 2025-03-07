@@ -1,4 +1,7 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, send_file
+import datetime
+import os
+import time
 
 app = Flask(__name__)
 
@@ -19,11 +22,49 @@ def home():
 def kie():
     return render_template('kie.html')
 
-@app.route('/kie_calculate', methods=['POST'])
+@app.route('/calculate_kie', methods=['POST'])
 def calculate_kie():
-    temperature = request.form.get('temperature')
 
-    return f"KIE Calculation completed at {temperature}"
+    temperature = request.form.get('temperature')
+    temp_increment = request.form.get('temp_increment')
+    symmetry_number = request.form.get('symmetry_number')
+    scaling_factor = request.form.get('scaling_factor')
+
+    SESSION_FOLDER = os.path.join('sessions', 'session_' + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
+    os.makedirs(SESSION_FOLDER, exist_ok=True)
+    app.config['SESSION_FOLDER'] = SESSION_FOLDER
+    
+    # Handling file uploads
+    config_file = request.files.get('config_file')
+    ground_state_file = request.files.get('ground_state_file')
+    transition_state_file = request.files.get('transition_state_file')
+
+    # Save uploaded files if they exist
+    if config_file:
+        config_path = os.path.join(app.config['SESSION_FOLDER'], 'my.config')
+        config_file.save(config_path)
+
+    if ground_state_file:
+        ground_state_path = os.path.join(app.config['SESSION_FOLDER'], 'gs.out')
+        ground_state_file.save(ground_state_path)
+
+    if transition_state_file:
+        transition_state_path = os.path.join(app.config['SESSION_FOLDER'], 'ts.out')
+        transition_state_file.save(transition_state_path)
+
+    output_file_path = os.path.join(app.config['SESSION_FOLDER'], 'output.txt')
+
+    command = f"python3 PyQuiver/src/quiver_AL.py -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
+    os.system(command)
+    
+    timeout = 5  # seconds
+    start_time = time.time()
+    while not os.path.exists(output_file_path):
+        if time.time() - start_time > timeout:
+            return "File not found", 404  # Timeout exceeded
+        time.sleep(0.1)  # Small delay to check again
+    
+    return send_file(output_file_path, mimetype="text/plain", as_attachment=True, download_name="output.txt")
 
 # Load the EIE page
 @app.route('/eie')
