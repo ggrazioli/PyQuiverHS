@@ -59,7 +59,7 @@
         <a href="{{ url_for('home') }}">Back to Home</a>
         <h2>KIE Calculations!</h2>
         
-        <form action="/kie_calculate" method="post">
+        <form action="/calculate_kie" method="post" enctype="multipart/form-data">
             <div class="label">
                 <span>Configuration File</span>
                 <input type="file" name="config_file" accept=".config" required>
