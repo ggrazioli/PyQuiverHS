@@ -25,6 +25,7 @@ def kie():
 @app.route('/calculate_kie', methods=['POST'])
 def calculate_kie():
 
+    original_cwd = os.getcwd()
     temperature = request.form.get('temperature')
     temp_increment = request.form.get('temp_increment')
     symmetry_number = request.form.get('symmetry_number')
@@ -56,6 +57,7 @@ def calculate_kie():
 
     command = f"python3 PyQuiver/src/quiver_AL.py -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
     os.system(command)
+    os.system('clear')
     
     timeout = 5  # seconds
     start_time = time.time()
@@ -64,7 +66,7 @@ def calculate_kie():
             return "File not found", 404  # Timeout exceeded
         time.sleep(0.1)  # Small delay to check again
     
-    return send_file(output_file_path, mimetype="text/plain", as_attachment=True, download_name="output.txt")
+    return send_file(os.path.join(original_cwd, SESSION_FOLDER, 'output.txt'), mimetype="text/plain", as_attachment=True, download_name="output.txt")
 
 # Load the EIE page
 @app.route('/eie')
