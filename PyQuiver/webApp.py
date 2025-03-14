@@ -61,7 +61,7 @@ def calculate_kie():
 
     output_file_path = os.path.join(app.config['SESSION_FOLDER'], 'output.txt')
 
-    command = f"{sys.executable} {os.path.join("PyQuiver", "src", "quiver_AL.py")} -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
+    command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_AL.py')} -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
     os.system(command)
     # os.system('clear')
     
@@ -124,12 +124,12 @@ def generate_config():
     # TODO Implement this
     # light isotopomer mass replacement
     f.write("# specifies the masses used for the light isotopomer\n")
-    f.write(f"mass_override_isotopologue {"default"}\n\n")
+    f.write(f"mass_override_isotopologue {'default'}\n\n")
 
     # TODO Implement this
     # reference isotopomer
     f.write("#all KIEs will be divided by the KIE at this position\n")
-    f.write(f"reference_isotopomer {"none"}\n\n")
+    f.write(f"reference_isotopomer {'none'}\n\n")
 
     f.write("# define the isotopomers\n")
     for isotopomer in isotopomers:
