@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, send_file
 import datetime
 import os
 import time
+import subprocess
+import sys
 
 app = Flask(__name__)
 
@@ -11,6 +13,11 @@ VALID_EXTENSIONS = {
     'file2': ['.out', '.log'],
 }
 
+# This function generates a session folder with the appropriate time
+def generate_session() -> str:
+    folder_name = os.path.join('sessions', 'session_' + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
+    os.makedirs(folder_name, exist_ok=True)
+    return folder_name
 
 # Load the main page
 @app.route('/')
@@ -31,8 +38,7 @@ def calculate_kie():
     symmetry_number = request.form.get('symmetry_number')
     scaling_factor = request.form.get('scaling_factor')
 
-    SESSION_FOLDER = os.path.join('sessions', 'session_' + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S"))
-    os.makedirs(SESSION_FOLDER, exist_ok=True)
+    SESSION_FOLDER = generate_session()
     app.config['SESSION_FOLDER'] = SESSION_FOLDER
     
     # Handling file uploads
@@ -55,9 +61,9 @@ def calculate_kie():
 
     output_file_path = os.path.join(app.config['SESSION_FOLDER'], 'output.txt')
 
-    command = f"python3 PyQuiver/src/quiver_AL.py -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
+    command = f"{sys.executable} PyQuiver/src/quiver_AL.py -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
     os.system(command)
-    os.system('clear')
+    # os.system('clear')
     
     timeout = 5  # seconds
     start_time = time.time()
@@ -73,29 +79,16 @@ def calculate_kie():
 def eie():
     return render_template('eie.html')
 
-# @app.route('/validate_data', methods=['POST'])
-# def validate_data():
-#     # case 1: any one of the files is not selected and uploaded
-#     if 'config_file' not in request.files or 'file1' not in request.files or 'file2' not in request.files:
-#         return "Missing file", 400
-    
-#     files = {
-#         'config_file': request.files['config_file'],
-#         'file1': request.files['file1'], 
-#         'file2': request.files['file2']
-#     }
 
-#     for key, file in files.items():
-#         # case 2: dialog to select file comes up, but nothing is uploaded
-#         if file.filename == '':
-#             return f"No selected file for {key}", 400
-        
-#         # case 3: invalid file format uploaded
-#         if not any(file.filename.endswith(ext) for ext in VALID_EXTENSIONS[key]):
-#             return f"Invalid file format for {key}. Expected one of {VALID_EXTENSIONS[key]}"
+# Load the config generator page
+@app.route('/config', methods=['GET'])
+def config():
+    return render_template('config.html')
 
-#     return "Files uploaded successfully!", 200
-
+# Generate the config file
+@app.route('/generate_config', methods=['POST'])
+def generate_config():
+    ...
 
 
 app.run()
