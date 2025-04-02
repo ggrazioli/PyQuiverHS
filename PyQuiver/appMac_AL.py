@@ -128,7 +128,7 @@ class KIE(tk.Frame):
             # )
             with open(file_path, 'w'):
                 pass
-            command = f"python3 PyQuiver/src/quiver_AL.py -v {self.files[0].name} {self.files[1].name} {self.files[2].name} {num} {file_path}"
+            command = f"python3 src/quiver_AL.py -v {self.files[0].name} {self.files[1].name} {self.files[2].name} {num} {file_path}"
             os.system(command)
             num = num + increment
             print()
@@ -156,8 +156,8 @@ class KIE(tk.Frame):
                     df1 = df1.iloc[1:]
                     df1['Temperature'] = float(lines[0].split()[1][:-1])
 
-                    print("df1 before concatenation:", df1)
-                    print("df before concatenation:", df)
+                    # print("df1 before concatenation:", df1)
+                    # print("df before concatenation:", df)
                     
                     df = pd.concat([df, df1])
         
