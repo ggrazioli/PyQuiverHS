@@ -90,7 +90,7 @@
         <a href="{{ url_for('home') }}">Back to Home</a>
         <h2>Configuration file generator</h2>
         
-        <form action="/generate_config" method="post" enctype="multipart/form-data">
+        <form action="/config" method="post" enctype="multipart/form-data">
             <div class="label">
                 <span>Ground State File</span>
                 <input type="file" name="ground_state_file" accept=".out,.log">
