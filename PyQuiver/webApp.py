@@ -26,54 +26,52 @@ def home():
     return render_template('mainMenu.html')
 
 # Load the KIE Calculation page
-@app.route('/kie', methods=['GET'])
+@app.route('/kie', methods=['GET', 'POST'])
 def kie():
-    return render_template('kie.html')
+    if request.method == 'GET':
+        return render_template('kie.html')
+    elif request.method == 'POST':
+        original_cwd = os.getcwd()
+        temperature = request.form.get('temperature')
+        temp_increment = request.form.get('temp_increment')
+        symmetry_number = request.form.get('symmetry_number')
+        scaling_factor = request.form.get('scaling_factor')
 
-@app.route('/calculate_kie', methods=['POST'])
-def calculate_kie():
+        SESSION_FOLDER = generate_session()
+        app.config['SESSION_FOLDER'] = SESSION_FOLDER
+        
+        # Handling file uploads
+        config_file = request.files.get('config_file')
+        ground_state_file = request.files.get('ground_state_file')
+        transition_state_file = request.files.get('transition_state_file')
 
-    original_cwd = os.getcwd()
-    temperature = request.form.get('temperature')
-    temp_increment = request.form.get('temp_increment')
-    symmetry_number = request.form.get('symmetry_number')
-    scaling_factor = request.form.get('scaling_factor')
+        # Save uploaded files if they exist
+        if config_file:
+            config_path = os.path.join(app.config['SESSION_FOLDER'], 'my.config')
+            config_file.save(config_path)
 
-    SESSION_FOLDER = generate_session()
-    app.config['SESSION_FOLDER'] = SESSION_FOLDER
-    
-    # Handling file uploads
-    config_file = request.files.get('config_file')
-    ground_state_file = request.files.get('ground_state_file')
-    transition_state_file = request.files.get('transition_state_file')
+        if ground_state_file:
+            ground_state_path = os.path.join(app.config['SESSION_FOLDER'], 'gs.out')
+            ground_state_file.save(ground_state_path)
 
-    # Save uploaded files if they exist
-    if config_file:
-        config_path = os.path.join(app.config['SESSION_FOLDER'], 'my.config')
-        config_file.save(config_path)
+        if transition_state_file:
+            transition_state_path = os.path.join(app.config['SESSION_FOLDER'], 'ts.out')
+            transition_state_file.save(transition_state_path)
 
-    if ground_state_file:
-        ground_state_path = os.path.join(app.config['SESSION_FOLDER'], 'gs.out')
-        ground_state_file.save(ground_state_path)
+        output_file_path = os.path.join(app.config['SESSION_FOLDER'], 'output.txt')
 
-    if transition_state_file:
-        transition_state_path = os.path.join(app.config['SESSION_FOLDER'], 'ts.out')
-        transition_state_file.save(transition_state_path)
-
-    output_file_path = os.path.join(app.config['SESSION_FOLDER'], 'output.txt')
-
-    command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_AL.py')} -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
-    os.system(command)
-    # os.system('clear')
-    
-    timeout = 5  # seconds
-    start_time = time.time()
-    while not os.path.exists(output_file_path):
-        if time.time() - start_time > timeout:
-            return "File not found", 404  # Timeout exceeded
-        time.sleep(0.1)  # Small delay to check again
-    
-    return send_file(os.path.join(original_cwd, SESSION_FOLDER, 'output.txt'), mimetype="text/plain", as_attachment=True, download_name="output.txt")
+        command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_AL.py')} -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
+        os.system(command)
+        # os.system('clear')
+        
+        timeout = 5  # seconds
+        start_time = time.time()
+        while not os.path.exists(output_file_path):
+            if time.time() - start_time > timeout:
+                return "File not found", 404  # Timeout exceeded
+            time.sleep(0.1)  # Small delay to check again
+        
+        return send_file(os.path.join(original_cwd, SESSION_FOLDER, 'output.txt'), mimetype="text/plain", as_attachment=True, download_name="output.txt")
 
 # Load the EIE page
 @app.route('/eie')
@@ -82,66 +80,64 @@ def eie():
 
 
 # Load the config generator page
-@app.route('/config', methods=['GET'])
+@app.route('/config', methods=['GET', 'POST'])
 def config():
-    return render_template('config.html')
+    if request.method == 'GET':
+        return render_template('config.html')
+    elif request.method == 'POST':   
+        original_cwd = os.getcwd()
 
-# Generate the config file
-@app.route('/generate_config', methods=['POST'])
-def generate_config():
+        temperature = request.form.get("temperature")
+        imag_threshold = request.form.get("imag_threshold")
+        scaling = request.form.get("scaling")
+        
+        isotopomers = request.form.getlist("isotopomers[]")
+        # Ensure at least one isotopomer is recieved
+        if not isotopomers or all(obj.strip() == "" for obj in isotopomers):
+            return "You must enter at least one isotopomer.", 400
+        
+        # Generate a session folder
+        SESSION_FOLDER = generate_session()
 
-    original_cwd = os.getcwd()
+        # Open a new file
+        f = open(os.path.join(SESSION_FOLDER, "autogenerated.config"), "w")
 
-    temperature = request.form.get("temperature")
-    imag_threshold = request.form.get("imag_threshold")
-    scaling = request.form.get("scaling")
+
+        f.write("### THIS FILE HAS BEEN AUTOMATICALLY GENERATED ###\n\n\n")
+
+        # scaling
+        f.write("# scaling factor for frequencies\n")
+        f.write(f"scaling {scaling}\n\n")
+
+        # imaginary threshold
+        f.write("# imaginaries less than this value in i*cm-1 will be ignored for the transition mode\n")
+        f.write(f"imag_threshold {imag_threshold}\n\n")
+
+        # temperature
+        f.write("# temperature in K\n")
+        f.write(f"temperature {temperature}\n\n")
+
+        # TODO Implement this
+        # light isotopomer mass replacement
+        f.write("# specifies the masses used for the light isotopomer\n")
+        f.write(f"mass_override_isotopologue {'default'}\n\n")
+
+        # TODO Implement this
+        # reference isotopomer
+        f.write("#all KIEs will be divided by the KIE at this position\n")
+        f.write(f"reference_isotopomer {'none'}\n\n")
+
+        f.write("# define the isotopomers\n")
+        for isotopomer in isotopomers:
+            f.write(f"isotopomer {isotopomer}\n")
+        f.write("\n\n\n")
+
+        f.write("### END OF THE FILE ###")
+        f.close()
+
+        return send_file(os.path.join(original_cwd, SESSION_FOLDER, 'autogenerated.config'), mimetype="text/plain", as_attachment=True, download_name="autogenerated.config")
     
-    isotopomers = request.form.getlist("isotopomers[]")
-    # Ensure at least one isotopomer is recieved
-    if not isotopomers or all(obj.strip() == "" for obj in isotopomers):
-        return "You must enter at least one isotopomer.", 400
     
-    # Generate a session folder
-    SESSION_FOLDER = generate_session()
-
-    # Open a new file
-    f = open(os.path.join(SESSION_FOLDER, "autogenerated.config"), "w")
-
-
-    f.write("### THIS FILE HAS BEEN AUTOMATICALLY GENERATED ###\n\n\n")
-
-    # scaling
-    f.write("# scaling factor for frequencies\n")
-    f.write(f"scaling {scaling}\n\n")
-
-    # imaginary threshold
-    f.write("# imaginaries less than this value in i*cm-1 will be ignored for the transition mode\n")
-    f.write(f"imag_threshold {imag_threshold}\n\n")
-
-    # temperature
-    f.write("# temperature in K\n")
-    f.write(f"temperature {temperature}\n\n")
-
-    # TODO Implement this
-    # light isotopomer mass replacement
-    f.write("# specifies the masses used for the light isotopomer\n")
-    f.write(f"mass_override_isotopologue {'default'}\n\n")
-
-    # TODO Implement this
-    # reference isotopomer
-    f.write("#all KIEs will be divided by the KIE at this position\n")
-    f.write(f"reference_isotopomer {'none'}\n\n")
-
-    f.write("# define the isotopomers\n")
-    for isotopomer in isotopomers:
-        f.write(f"isotopomer {isotopomer}\n")
-    f.write("\n\n\n")
-
-    f.write("### END OF THE FILE ###")
-    f.close()
-
-    return send_file(os.path.join(original_cwd, SESSION_FOLDER, 'autogenerated.config'), mimetype="text/plain", as_attachment=True, download_name="autogenerated.config")
-
 # Molecule Viewer
 def extract_structure(file_path):
     try:
