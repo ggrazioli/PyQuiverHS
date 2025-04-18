@@ -109,7 +109,7 @@ def kie():
         column_names = ['Isotopologue', 'Temperature', 'Uncorrected', 'Wigner', 'Bell', 'Enthalpy', 'Entropy']
         df = pd.DataFrame(columns=column_names)
 
-        start_temp = float(temperature[0])  # reset temperature to start
+        start_temp = float(temperature[0])  # reset temperature to start to begin iterating again
         while start_temp <= final_temp: 
             output_file_path = os.path.join(app.config['SESSION_FOLDER'], f'output_{start_temp}.txt')
             
@@ -120,12 +120,12 @@ def kie():
                 for line in lines[5:]:      # skip 5-line header
                     line_components = line.strip().split()
 
-                    if "referenced" in line_components or len(line_components) < 5:
-                        continue                # skip any lines discussing reference isotopologue or any irrelevant lines 
+                    if "KIEs" in line_components or len(line_components) < 5:
+                        continue                # skip any lines discussing reference/absolute isotopologue or any irrelevant lines 
 
                     isotopologue_name = line_components[1]
-                    all_values = list(map(float, line_components[2:7]))     # temporary?
-                    kie_values = list(map(float, line_components[2:5]))
+                    all_values = list(map(float, line_components[2:7]))     # temporary? this contains enthalpy and entropy
+                    kie_values = list(map(float, line_components[2:5]))     # this does NOT contain enthalpy and entropy
 
                     if isotopologue_name not in kie_data:
                         kie_data[isotopologue_name] = {"temperature": [], "kies": []}
