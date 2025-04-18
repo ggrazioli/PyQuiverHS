@@ -468,7 +468,7 @@ def q_r(atomDF, temperature, symmetry_factor = 1):
     theta_y = theta_r_xyz(I_data)[1]
     theta_z = theta_r_xyz(I_data)[2]
 
-    q_r = (np.pi)**(1/2) * temperature**(3/2) / (symmetry_factor * (theta_x * theta_y * theta_z)**(3/2))
+    q_r = (np.pi)**(1/2) * temperature**(3/2) / (symmetry_factor * (theta_x * theta_y * theta_z)**(1/2))
 
     return q_r
 
