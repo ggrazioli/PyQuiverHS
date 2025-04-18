@@ -392,6 +392,12 @@ def partition_components(self, freqs_heavy, freqs_light, temperature):
         S_rot_h = 1
         S_rot_l = 1
 
+        # q_r_h = q_r()
+        # q_r_l = q_r()
+
+        # S_rot_h = rCal*(np.log(q_r_h) + 3/2)
+        # S_rot_l = rCal*(np.log(q_r_l) + 3/2)
+
         components.append([product_factor, excitation_factor, ZPE_factor])
         enth_components.append([H_ZPE_h-H_ZPE_l, H_vib_h-H_vib_l])
         entr_components.append([S_vib_h-S_vib_l, S_rot_h - S_rot_l])
@@ -455,6 +461,16 @@ def theta_r_xyz(I_data):
     eVals_kg_m2 = kg_per_amu * m_per_angstrom**2 * I_data['eVals']
     theta_xyz = [h**2/(8 * np.pi**2 * I * kB) for I in eVals_kg_m2]
     return(theta_xyz)
+
+def q_r(atomDF, temperature, symmetry_factor = 1):
+    I_data = get_I_data(atomDF)
+    theta_x = theta_r_xyz(I_data)[0]
+    theta_y = theta_r_xyz(I_data)[1]
+    theta_z = theta_r_xyz(I_data)[2]
+
+    q_r = (np.pi)**(1/2) * temperature**(3/2) / (symmetry_factor * (theta_x * theta_y * theta_z)**(3/2))
+
+    return q_r
 
 # tup is a tuple of a form (light_isotopologue, heavy_isotopologue)
 def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
