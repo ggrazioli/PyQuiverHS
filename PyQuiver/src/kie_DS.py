@@ -2,7 +2,7 @@
 import numpy as np
 #from quiver import System, Isotopologue, DEBUG
 import pandas as pd
-import quiver
+import quiver_working as quiver
 import settings
 from file_writer import FileWriter
 from config import Config
@@ -200,7 +200,8 @@ class KIE_Calculation(object):
         print(self.eie_flag)
         string = "\n=== PyQuiver Analysis ===\n"
         if self.eie_flag == 0:
-            string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
+            # string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
+            string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell     Enthalpy        Entropy\n"      ## AL: fix spacing
             string += "                                                              KIE           KIE              KIE"
         else:
             string += "Isotopologue        Name                                   EIE"
@@ -239,6 +240,9 @@ class KIE(object):
             print("Calculating KIE for isotopologue {0}.".format(name))
         self.value = self.calculate_kie()
 
+        ## AL addition:
+        self.components = self.calculate_kie_components()
+
     def calculate_kie(self):
         if settings.DEBUG >= 2:
             print("  Calculating Reduced Partition Function Ratio for Ground State.")
@@ -262,9 +266,21 @@ class KIE(object):
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
 
-        the_kie = final_enth * final_entr
-        print(f'Final KIE is {the_kie}')
-        return the_kie
+        ## find way to optimize this
+        light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.ts_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
+        heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = self.ts_tuple[1].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
+
+
+        uncorrected_kie = final_enth * final_entr
+        wigner_kie = uncorrected_kie * wigner(heavy_imag_freqs[0], light_imag_freqs[0], self.temperature)
+        bell_kie = uncorrected_kie * bell(heavy_imag_freqs[0], light_imag_freqs[0], self.temperature)
+
+        print(f'Final KIE is {uncorrected_kie} \nWigner corrected KIE is {wigner_kie} \nBell corrected KIE is {bell_kie}')
+        
+        kie_values = np.array([uncorrected_kie, wigner_kie, bell_kie])
+
+        return kie_values
+    
         # if ts_imag_ratios is not None:
         #     if self.eie_flag == -1:
         #         self.eie_flag = 0
@@ -282,8 +298,40 @@ class KIE(object):
         #     eie = rpfr_gs/rpfr_ts
         #     return eie
 
+
+
+    def calculate_kie_components(self):             ## AL: temporary addition -- streamline later by adding under calculate_kie?
+        if settings.DEBUG >= 2:
+            print("  Calculating Reduced Partition Function Ratio for Ground State.")
+        enth_gs_sums, entr_gs_sums, rpfr_gs, gs_imag_ratios, gs_heavy_freqs, gs_light_freqs = calculate_rpfr(self, self.gs_tuple, self.imag_threshold, self.scaling, self.temperature)
+        if settings.DEBUG >= 2:
+            print("    rpfr_gs:", np.prod(rpfr_gs))
+        if settings.DEBUG >= 2:
+            print("  Calculating Reduced Partition Function Ratio for Transition State.")
+
+        enth_ts_sums, entr_ts_sums, rpfr_ts, ts_imag_ratios, ts_heavy_freqs, ts_light_freqs = calculate_rpfr(self, self.ts_tuple, self.imag_threshold, self.scaling, self.temperature)
+        if settings.DEBUG >= 2:
+            print("    rpfr_ts:", np.prod(rpfr_ts))
+
+        final_enth_sum = enth_ts_sums - enth_gs_sums
+        final_enth_zpe = np.exp(final_enth_sum[0]/(r*self.temperature))
+        final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
+        final_enth = final_enth_zpe * final_enth_vib
+
+        final_entr_sum = entr_ts_sums - entr_gs_sums
+        final_entr_vib = np.exp(final_entr_sum[0]/rCal)
+        final_entr_rot = np.exp(final_entr_sum[1]/rCal)
+        final_entr = final_entr_vib * final_entr_rot
+
+        return final_enth, final_entr
+
+
+
     def apply_reference(self, reference_kie):
+        # print('self.value before:', self.value)
+        # print('reference_kie used:', reference_kie.value)
         self.value /= reference_kie.value
+        # print('self.value after:', self.value)
         return self.value
 
     def __str__(self):
@@ -297,7 +345,8 @@ class KIE(object):
             #     print(self.value[1])
             #     print(self.value[2])
                 # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
-                return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f}".format("", self.name, self.value)
+                return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f} {5: ^17.8f} {6: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2], self.components[0], self.components[1])
+                # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f}".format("", self.name, self.value)
         else:
             "KIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
 
@@ -343,6 +392,12 @@ def partition_components(self, freqs_heavy, freqs_light, temperature):
         S_rot_h = 1
         S_rot_l = 1
 
+        # q_r_h = q_r()
+        # q_r_l = q_r()
+
+        # S_rot_h = rCal*(np.log(q_r_h) + 3/2)
+        # S_rot_l = rCal*(np.log(q_r_l) + 3/2)
+
         components.append([product_factor, excitation_factor, ZPE_factor])
         enth_components.append([H_ZPE_h-H_ZPE_l, H_vib_h-H_vib_l])
         entr_components.append([S_vib_h-S_vib_l, S_rot_h - S_rot_l])
@@ -371,6 +426,25 @@ def rot_temps_swapped():
     I_data = get_I_data(atoms_DF)  
     theta_r_xyz(I_data) 
 
+def make_atomDF(isotoplogue: quiver_working.Isotopologue):
+    data = dict()
+    data['atom_num'] = isotoplogue.system.atomic_numbers
+    data['mass'] = isotoplogue.masses
+
+    # empty list of positions
+    x = list()
+    y = list()
+    z = list()
+    for position in isotopologue.system.positions_angstrom:
+        x.append(position[0])
+        y.append(position[1])
+        z.append(position[2])
+    data['x'] = x
+    data['y'] = y
+    data['z'] = z
+
+    return pd.DataFrame(data)
+
 def get_I_data(atomDF):
     center_of_mass = np.zeros(3)
     mass_tot = 0
@@ -386,7 +460,7 @@ def get_I_data(atomDF):
         Iyy = Iyy + row['mass']*(row['x']**2 + row['z']**2)
         Izz = Izz + row['mass']*(row['x']**2 + row['y']**2)
         Ixy = Ixy - row['mass']*row['x']*row['y']
-        Ixz = Ixz - row['mass']*row['z']*row['y']
+        Ixz = Ixz - row['mass']*row['z']*row['y'] # Is this right?
         Iyz = Iyz - row['mass']*row['y']*row['z']
     Iyz, Izx, Izy = Ixy, Ixz, Iyz
     I = np.matrix([[Ixx, Ixy, Ixz],[Iyz, Iyy, Iyz],[Izx, Izy, Izz]])
@@ -406,6 +480,16 @@ def theta_r_xyz(I_data):
     eVals_kg_m2 = kg_per_amu * m_per_angstrom**2 * I_data['eVals']
     theta_xyz = [h**2/(8 * np.pi**2 * I * kB) for I in eVals_kg_m2]
     return(theta_xyz)
+
+def q_r(atomDF, temperature, symmetry_factor = 1):
+    I_data = get_I_data(atomDF)
+    theta_x = theta_r_xyz(I_data)[0]
+    theta_y = theta_r_xyz(I_data)[1]
+    theta_z = theta_r_xyz(I_data)[2]
+
+    q_r = (np.pi)**(1/2) * temperature**(3/2) / (symmetry_factor * (theta_x * theta_y * theta_z)**(1/2))
+
+    return q_r
 
 # tup is a tuple of a form (light_isotopologue, heavy_isotopologue)
 def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
