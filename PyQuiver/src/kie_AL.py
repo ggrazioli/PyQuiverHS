@@ -300,8 +300,8 @@ class KIE(object):
         final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
         final_enth = final_enth_zpe * final_enth_vib
 
-        final_entr_sum = entr_ts_sums - entr_gs_sums
-        final_entr_vib = np.exp(final_entr_sum[0]/rCal)
+        final_entr_sum = - (entr_ts_sums - entr_gs_sums)            ## AL: text inverts them -- careful!!!
+        final_entr_vib = np.exp(final_entr_sum[0]/rCal)        
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
 
@@ -422,7 +422,7 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature):
 
         H_ZPE_h = vibrational_temp(wavenumber_heavy)/2
         H_ZPE_l = vibrational_temp(wavenumber_light)/2
-        H_vib_h = vibrational_temp(wavenumber_heavy)/(np.exp(u_heavy) - 1)
+        H_vib_h = vibrational_temp(wavenumber_heavy)/(np.exp(u_heavy) - 1)          ## AL: check units here? 
         H_vib_l = vibrational_temp(wavenumber_light)/(np.exp(u_light) - 1)
 
         S_vib_h = rCal*(((u_heavy/(np.exp(u_heavy) - 1))) - np.log(1-np.exp(-u_heavy)))
