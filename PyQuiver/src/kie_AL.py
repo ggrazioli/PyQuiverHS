@@ -14,6 +14,10 @@ h  = PHYSICAL_CONSTANTS["h"]  # in J . s
 c  = PHYSICAL_CONSTANTS["c"]  # in cm . s
 rJ = PHYSICAL_CONSTANTS["rJ"]
 rCal = PHYSICAL_CONSTANTS["rCal"]
+Eh = PHYSICAL_CONSTANTS["Eh"]
+a0 = PHYSICAL_CONSTANTS["a0"]
+atb = PHYSICAL_CONSTANTS["atb"]
+amu = PHYSICAL_CONSTANTS["amu"]
 r = PHYSICAL_CONSTANTS["r"]
 kB = PHYSICAL_CONSTANTS["kB"] # in J/K
 kcalToJ = PHYSICAL_CONSTANTS["kcalToJ"]
@@ -305,6 +309,16 @@ class KIE(object):
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
 
+        print('********************************************************************')
+        print('H_ZPE', final_enth_zpe)
+        print('H_vib', final_enth_vib)
+        print('H_tot', final_enth)
+
+        print('S_vib', final_entr_vib)
+        print('S_rot', final_entr_rot)
+        print('S_tot', final_entr)
+        print('********************************************************************')
+
         ## find way to optimize this
         light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.ts_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
         heavy_small_freqs, heavy_imag_freqs, heavy_freqs, heavy_num_small = self.ts_tuple[1].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
@@ -357,7 +371,7 @@ class KIE(object):
         final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
         final_enth = final_enth_zpe * final_enth_vib
 
-        final_entr_sum = entr_ts_sums - entr_gs_sums
+        final_entr_sum = - (entr_ts_sums - entr_gs_sums)
         final_entr_vib = np.exp(final_entr_sum[0]/rCal)
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
@@ -504,24 +518,27 @@ def get_I_data(atomDF):
         Iyy = Iyy + row['mass']*(row['x']**2 + row['z']**2)
         Izz = Izz + row['mass']*(row['x']**2 + row['y']**2)
         Ixy = Ixy - row['mass']*row['x']*row['y']
-        Ixz = Ixz - row['mass']*row['z']*row['y']
+        Ixz = Ixz - row['mass']*row['x']*row['z']
         Iyz = Iyz - row['mass']*row['y']*row['z']
-    Iyz, Izx, Izy = Ixy, Ixz, Iyz
-    I = np.matrix([[Ixx, Ixy, Ixz],[Iyz, Iyy, Iyz],[Izx, Izy, Izz]])
+    Iyx, Izx, Izy = Ixy, Ixz, Iyz
+    I = np.matrix([[Ixx, Ixy, Ixz],[Iyx, Iyy, Iyz],[Izx, Izy, Izz]])
     eVals, eVecs = np.linalg.eigh(I)
+
+    print('eVals', eVals)
+
     return({'I':I, 'eVals':eVals, 'eVecs':eVecs})
 
 def theta_r_xyz(I_data):
     # Defining these constants locally for portability, but it
     # might be better to pull from global constants later.
-    h = (6.62606957 * 10**-34) #J*s
-    kB = 1.3806488 * 10**-23 #J/K
-    bohr_in_ang = 0.52917721092 # angstrom/bohr
-    bohr_in_m = bohr_in_ang / 10**10 # 
-    kg_per_amu = 1.660538921 * 10**-27 #kg/amu
+    # h = (6.62606957 * 10**-34) #J*s
+    # kB = 1.3806488 * 10**-23 #J/K
+    # bohr_in_ang = 0.52917721092 # angstrom/bohr
+    # bohr_in_m = bohr_in_ang / 10**10 # 
+    # kg_per_amu = 1.660538921 * 10**-27 #kg/amu
     m_per_angstrom = 10**-10 #m/Angstrom
     
-    eVals_kg_m2 = kg_per_amu * m_per_angstrom**2 * I_data['eVals']
+    eVals_kg_m2 = amu * m_per_angstrom**2 * I_data['eVals']
     theta_xyz = [h**2/(8 * np.pi**2 * I * kB) for I in eVals_kg_m2]
     return(theta_xyz)
 
