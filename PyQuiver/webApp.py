@@ -6,6 +6,13 @@ import subprocess
 import sys
 from ase import io
 
+import matplotlib
+import matplotlib.pyplot as plt
+import pandas as pd
+import zipfile
+
+matplotlib.use('Agg')
+
 app = Flask(__name__)
 
 VALID_EXTENSIONS = {
@@ -32,10 +39,18 @@ def kie():
         return render_template('kie.html')
     elif request.method == 'POST':
         original_cwd = os.getcwd()
-        temperature = request.form.get('temperature')
+        temperature = request.form.get('temperature').split(',')        # added .split(',')
         temp_increment = request.form.get('temp_increment')
         symmetry_number = request.form.get('symmetry_number')
         scaling_factor = request.form.get('scaling_factor')
+
+        # for case where only one temp is given
+        if len(temperature) == 1:
+            temperature.append(temperature[0])
+            temp_increment = 1
+
+        start_temp = float(temperature[0])
+        final_temp = float(temperature[1])
 
         SESSION_FOLDER = generate_session()
         app.config['SESSION_FOLDER'] = SESSION_FOLDER
@@ -58,20 +73,105 @@ def kie():
             transition_state_path = os.path.join(app.config['SESSION_FOLDER'], 'ts.out')
             transition_state_file.save(transition_state_path)
 
-        output_file_path = os.path.join(app.config['SESSION_FOLDER'], 'output.txt')
+        # AL: added while loop, looping over temperature range to produce .txt files for each temp
+        while start_temp <= final_temp:
+            output_file_path = os.path.join(app.config['SESSION_FOLDER'], f'output_{start_temp}.txt')
 
-        command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_AL.py')} -v {config_path} {ground_state_path} {transition_state_path} {temperature} {output_file_path}"
-        os.system(command)
-        # os.system('clear')
-        
-        timeout = 5  # seconds
-        start_time = time.time()
-        while not os.path.exists(output_file_path):
-            if time.time() - start_time > timeout:
-                return "File not found", 404  # Timeout exceeded
-            time.sleep(0.1)  # Small delay to check again
-        
-        return send_file(os.path.join(original_cwd, SESSION_FOLDER, 'output.txt'), mimetype="text/plain", as_attachment=True, download_name="output.txt")
+            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_working.py')} -v {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path}"
+            os.system(command)
+            start_temp += float(temp_increment)
+            # os.system('clear')
+            
+            timeout = 5  # seconds
+            start_time = time.time()
+            while not os.path.exists(output_file_path):
+                if time.time() - start_time > timeout:
+                    return "File not found", 404  # Timeout exceeded
+                time.sleep(0.1)  # Small delay to check again
+            
+       
+
+        #-- create zip folder for outputs (.txt, .csv, and plots)
+        zip_path = os.path.join(app.config['SESSION_FOLDER'], 'outputs.zip')
+
+        with zipfile.ZipFile(zip_path, 'w') as zipf:
+            start_temp = float(temperature[0])      # reset starting temperature
+            while start_temp <= final_temp:
+                output_file_path = os.path.join(app.config['SESSION_FOLDER'], f'output_{start_temp}.txt')
+                if os.path.exists(output_file_path):
+                    zipf.write(output_file_path, os.path.basename(output_file_path)) 
+                start_temp += float(temp_increment)
+
+
+        #-- process .txt files and prepare dataframe
+        kie_data = {}
+
+        column_names = ['Isotopologue', 'Temperature', 'Uncorrected', 'Wigner', 'Bell', 'Enthalpy', 'Entropy', 'H_ZPE', 'H_VIB', 'S_VIB', 'S_ROT', 'Approx. MMI', 'EXC', 'ZPE']
+        df = pd.DataFrame(columns=column_names)
+
+        start_temp = float(temperature[0])  # reset temperature to start to begin iterating again
+        while start_temp <= final_temp: 
+            output_file_path = os.path.join(app.config['SESSION_FOLDER'], f'output_{start_temp}.txt')
+            
+            if os.path.exists(output_file_path):
+                with open(output_file_path, 'r') as f:
+                    lines = f.readlines()
+
+                for line in lines[5:]:      # skip 5-line header
+                    line_components = line.strip().split()
+
+                    if "KIEs" in line_components or len(line_components) < 5:
+                        continue                # skip any lines discussing reference/absolute isotopologue or any irrelevant lines 
+
+                    isotopologue_name = line_components[1]
+                    all_values = list(map(float, line_components[2:14]))     # temporary? this contains enthalpy and entropy
+                    kie_values = list(map(float, line_components[2:5]))     # this does NOT contain enthalpy and entropy
+
+                    if isotopologue_name not in kie_data:
+                        kie_data[isotopologue_name] = {"temperature": [], "kies": []}
+
+                    if start_temp not in kie_data[isotopologue_name]['temperature']:
+                        kie_data[isotopologue_name]['temperature'].append(start_temp)
+
+                    kie_data[isotopologue_name]['kies'].append(kie_values)
+
+
+                    df.loc[len(df)] = [isotopologue_name, start_temp] + all_values
+
+            start_temp += float(temp_increment)
+
+        df.to_csv(app.config['SESSION_FOLDER'] + "/full_output.csv", index=False)
+        csv_path = os.path.join(app.config['SESSION_FOLDER'], 'full_output.csv')
+
+        #-- generate plots (uncorrected, Wigner, Bell)
+        plot_paths = []
+
+        for isotopologue_name, data in kie_data.items():
+            plt.figure()
+            plt.xlabel("Temperature (K)")
+            plt.ylabel("KIE Value")
+            plt.title(f"KIE Plot for {isotopologue_name}")
+
+            kie_labels = ['Uncorrected KIE', 'Wigner KIE', 'Bell KIE']
+
+            for i, kie_label in enumerate(kie_labels):
+                plt.plot(data['temperature'], [kie_list[i] for kie_list in data['kies']], marker = '.', label = kie_label)
+
+            plt.legend()
+
+            plot_path = os.path.join(app.config['SESSION_FOLDER'], f'plot_{isotopologue_name}.png')
+            plt.savefig(plot_path)
+            plot_paths.append(plot_path)
+            plt.close()
+
+        with zipfile.ZipFile(zip_path, 'a') as zipf:
+            for plot_path in plot_paths:
+                plot_filename = os.path.basename(plot_path)
+                zipf.write(plot_path, os.path.join('plots', plot_filename))
+
+            zipf.write(csv_path, os.path.basename(csv_path))
+
+        return send_file(os.path.join(original_cwd, SESSION_FOLDER, 'outputs.zip'), mimetype="application/zip", as_attachment=True, download_name="outputs.zip")
 
 # Load the EIE page
 @app.route('/eie')
