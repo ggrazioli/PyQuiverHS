@@ -14,6 +14,10 @@ h  = PHYSICAL_CONSTANTS["h"]  # in J . s
 c  = PHYSICAL_CONSTANTS["c"]  # in cm . s
 rJ = PHYSICAL_CONSTANTS["rJ"]
 rCal = PHYSICAL_CONSTANTS["rCal"]
+Eh = PHYSICAL_CONSTANTS["Eh"]
+a0 = PHYSICAL_CONSTANTS["a0"]
+atb = PHYSICAL_CONSTANTS["atb"]
+amu = PHYSICAL_CONSTANTS["amu"]
 r = PHYSICAL_CONSTANTS["r"]
 kB = PHYSICAL_CONSTANTS["kB"] # in J/K
 kcalToJ = PHYSICAL_CONSTANTS["kcalToJ"]
@@ -59,12 +63,51 @@ class KIE_Calculation(object):
         if self.config.frequency_threshold:
             print("WARNING: config file uses the frequency_threshold parameter. This has been deprecated and low frequencies are dropped by linearity detection.")
 
+
+        # self.ref_dfs = {}
+        # self.main_dfs = {}
+
+
         for p in self.make_isotopologues():
             gs_tuple, ts_tuple, ts_mass = p
+            
+            # ref_isotopologue = gs_tuple[0]
+            # isotopologue = gs_tuple[1]
             name = gs_tuple[1].name
+
+
+            # ref_masses = ref_isotopologue.masses
+            # ref_positions = ref_isotopologue.system.positions
+            # ref_atomic_numbers = ref_isotopologue.system.atomic_numbers
+
+            # masses = isotopologue.masses
+            # positions = isotopologue.system.positions
+            # atomic_numbers = isotopologue.system.atomic_numbers
+
+
+            # ref_inertia_dict = {
+            #     "atom_num": ref_atomic_numbers,
+            #     "mass": ref_masses,
+            #     "x": [ref_position[0] for ref_position in ref_positions],
+            #     "y": [ref_position[1] for ref_position in ref_positions],
+            #     "z": [ref_position[2] for ref_position in ref_positions]
+            # }
+
+            # inertia_dict = {
+            #     "atom_num": atomic_numbers,
+            #     "mass": masses,
+            #     "x": [position[0] for position in positions],
+            #     "y": [position[1] for position in positions],
+            #     "z": [position[2] for position in positions]
+            # }
+
+            # self.ref_dfs[name] = pd.DataFrame(ref_inertia_dict)
+            # self.main_dfs[name] = pd.DataFrame(inertia_dict)
+    
+
             kie = KIE(name, gs_tuple, ts_tuple, temperature, path, self.config.scaling, self.config.imag_threshold, ts_mass)
             KIES[name] = kie
-        
+
         for name,k in KIES.items():
             if name != self.config.reference_isotopologue:
                 if self.eie_flag == 0:
@@ -201,7 +244,7 @@ class KIE_Calculation(object):
         string = "\n=== PyQuiver Analysis ===\n"
         if self.eie_flag == 0:
             # string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
-            string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell     Enthalpy        Entropy\n"      ## AL: fix spacing
+            string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell        Enthalpy        Entropy        H_ZPE        H_vib        S_vib        S_rot\n"      ## AL: fix spacing
             string += "                                                              KIE           KIE              KIE"
         else:
             string += "Isotopologue        Name                                   EIE"
@@ -261,10 +304,20 @@ class KIE(object):
         final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
         final_enth = final_enth_zpe * final_enth_vib
 
-        final_entr_sum = entr_ts_sums - entr_gs_sums
-        final_entr_vib = np.exp(final_entr_sum[0]/rCal)
+        final_entr_sum = - (entr_ts_sums - entr_gs_sums)            ## AL: text inverts them -- careful!!!
+        final_entr_vib = np.exp(final_entr_sum[0]/rCal)        
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
+
+        print('********************************************************************')
+        print('H_ZPE', final_enth_zpe)
+        print('H_vib', final_enth_vib)
+        print('H_tot', final_enth)
+
+        print('S_vib', final_entr_vib)
+        print('S_rot', final_entr_rot)
+        print('S_tot', final_entr)
+        print('********************************************************************')
 
         ## find way to optimize this
         light_small_freqs, light_imag_freqs, light_freqs, light_num_small = self.ts_tuple[0].calculate_frequencies(self.imag_threshold, scaling=self.scaling)
@@ -318,12 +371,12 @@ class KIE(object):
         final_enth_vib = np.exp(final_enth_sum[1]/(r*self.temperature))
         final_enth = final_enth_zpe * final_enth_vib
 
-        final_entr_sum = entr_ts_sums - entr_gs_sums
+        final_entr_sum = - (entr_ts_sums - entr_gs_sums)
         final_entr_vib = np.exp(final_entr_sum[0]/rCal)
         final_entr_rot = np.exp(final_entr_sum[1]/rCal)
         final_entr = final_entr_vib * final_entr_rot
 
-        return final_enth, final_entr
+        return final_enth, final_entr, final_enth_zpe, final_enth_vib, final_entr_vib, final_entr_rot
 
 
 
@@ -345,7 +398,7 @@ class KIE(object):
             #     print(self.value[1])
             #     print(self.value[2])
                 # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
-                return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f} {5: ^17.8f} {6: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2], self.components[0], self.components[1])
+                return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f} {5: ^17.8f} {6: ^17.8f} {7: ^17.8f} {8: ^17.8f} {9: ^17.8f} {10: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2], self.components[0], self.components[1], self.components[2], self.components[3], self.components[4], self.components[5])
                 # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f}".format("", self.name, self.value)
         else:
             "KIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
@@ -367,7 +420,7 @@ def vibrational_temp(wavenumber):
 # uses the Teller-Redlich product rule
 # returns 1 x n array of the partition function ratios, where n is the number of frequencies
 # frequencies below frequency_threshold will be ignored and will not be included in the array
-def partition_components(self, freqs_heavy, freqs_light, temperature):
+def partition_components_frequency(self, freqs_heavy, freqs_light, temperature):
     components = []
     enth_components = []
     entr_components = []
@@ -383,24 +436,16 @@ def partition_components(self, freqs_heavy, freqs_light, temperature):
 
         H_ZPE_h = vibrational_temp(wavenumber_heavy)/2
         H_ZPE_l = vibrational_temp(wavenumber_light)/2
-        H_vib_h = vibrational_temp(wavenumber_heavy)/(np.exp(u_heavy) - 1)
+        H_vib_h = vibrational_temp(wavenumber_heavy)/(np.exp(u_heavy) - 1)          ## AL: check units here? 
         H_vib_l = vibrational_temp(wavenumber_light)/(np.exp(u_light) - 1)
 
         S_vib_h = rCal*(((u_heavy/(np.exp(u_heavy) - 1))) - np.log(1-np.exp(-u_heavy)))
         S_vib_l = rCal*(((u_light/(np.exp(u_light) - 1))) - np.log(1-np.exp(-u_light)))
 
-        S_rot_h = 1
-        S_rot_l = 1
-
-        # q_r_h = q_r()
-        # q_r_l = q_r()
-
-        # S_rot_h = rCal*(np.log(q_r_h) + 3/2)
-        # S_rot_l = rCal*(np.log(q_r_l) + 3/2)
-
         components.append([product_factor, excitation_factor, ZPE_factor])
         enth_components.append([H_ZPE_h-H_ZPE_l, H_vib_h-H_vib_l])
-        entr_components.append([S_vib_h-S_vib_l, S_rot_h - S_rot_l])
+        # entr_components.append([S_vib_h-S_vib_l, S_rot_h-S_rot_l])
+        entr_components.append([S_vib_h-S_vib_l])
         
         print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    S_vib_h: %9.5f  S_vib_l: %9.5f" % (i, wavenumber_light, wavenumber_heavy, S_vib_h, S_vib_l))
         if settings.DEBUG >= 1:
@@ -415,69 +460,85 @@ def partition_components(self, freqs_heavy, freqs_light, temperature):
 
     return np.array(components), np.array(enth_components), np.array(entr_components)
 
-def rot_temps_swapped():
-    row1 = {'atom':['H','C','O','N','H','H'], 
-        'atom_num':[1,6,8,7,1,1], 
-        'mass':[1.00783, 12.00000, 15.99491, 14.00307, 2.01410, 1.00783], #amu
-        'x':[0.309915, 0.202735, 1.145933, -1.156046, -1.300366, -1.301101], #positions in Angstroms
-        'y':[1.488070, 0.406125, -0.308020, -0.030953, -0.621913, -0.622071], 
-        'z':[0.000065, -0.000037, -0.000019, 0.000002, 0.800556, -0.800269]}
-    atoms_DF = pd.DataFrame(row1)
-    I_data = get_I_data(atoms_DF)  
-    theta_r_xyz(I_data) 
+def partition_components_rotational(atomDF_heavy, atomDF_light, temperature, symmetry_factor=1):
+    q_r_h = q_r(atomDF_heavy, temperature, symmetry_factor)
+    q_r_l = q_r(atomDF_light, temperature, symmetry_factor)
 
-def make_atomDF(isotoplogue: quiver_working.Isotopologue):
-    data = dict()
-    data['atom_num'] = isotoplogue.system.atomic_numbers
-    data['mass'] = isotoplogue.masses
+    S_rot_h = rCal*(np.log(q_r_h) + 3/2)
+    S_rot_l = rCal*(np.log(q_r_l) + 3/2)
 
-    # empty list of positions
-    x = list()
-    y = list()
-    z = list()
-    for position in isotopologue.system.positions_angstrom:
-        x.append(position[0])
-        y.append(position[1])
-        z.append(position[2])
-    data['x'] = x
-    data['y'] = y
-    data['z'] = z
+    return (S_rot_h-S_rot_l)
 
-    return pd.DataFrame(data)
+# def rot_temps_swapped():
+#     row1 = {'atom':['H','C','O','N','H','H'], 
+#         'atom_num':[1,6,8,7,1,1], 
+#         'mass':[1.00783, 12.00000, 15.99491, 14.00307, 2.01410, 1.00783], #amu
+#         'x':[0.309915, 0.202735, 1.145933, -1.156046, -1.300366, -1.301101], #positions in Angstroms
+#         'y':[1.488070, 0.406125, -0.308020, -0.030953, -0.621913, -0.622071], 
+#         'z':[0.000065, -0.000037, -0.000019, 0.000002, 0.800556, -0.800269]}
+#     atoms_DF = pd.DataFrame(row1)
+#     I_data = get_I_data(atoms_DF)  
+#     theta_r_xyz(I_data) 
+
+def create_atomDF(isotopologue):
+    # ref_isotopologue = gs_tuple[0]
+    # isotopologue = gs_tuple[1]
+    # name = isotopologue.name
+
+    masses = isotopologue.masses
+    positions = isotopologue.system.positions_angstrom
+    atomic_numbers = isotopologue.system.atomic_numbers
+
+    atomDict = {
+        "atom_num": atomic_numbers,
+        "mass": masses,
+        "x": [position[0] for position in positions],
+        "y": [position[1] for position in positions],
+        "z": [position[2] for position in positions]
+    }
+
+    atomDF = pd.DataFrame(atomDict)
+
+    return atomDF
 
 def get_I_data(atomDF):
     center_of_mass = np.zeros(3)
     mass_tot = 0
     for index, row in atomDF.iterrows():
-        center_of_mass = center_of_mass + row['mass']*np.array(row[3:6])
+        # center_of_mass = center_of_mass + row['mass']*np.array(row[3:6])      ## AL: removing 'atom' shifts this
+        center_of_mass = center_of_mass + row['mass']*np.array(row[2:5])
         mass_tot = mass_tot + row['mass']
     center_of_mass = 1/mass_tot * center_of_mass
     centeredXYZ = atomDF[['x','y','z']].sub(center_of_mass, axis=1)
-    atomDF_centered = pd.concat([atomDF[['atom','atom_num','mass']], centeredXYZ], axis=1)
+    # atomDF_centered = pd.concat([atomDF[['atom','atom_num','mass']], centeredXYZ], axis=1)        ## AL: 'atom' does not convey any useful information; it would be more convenient to leave it out here since there is no output
+    atomDF_centered = pd.concat([atomDF[['atom_num','mass']], centeredXYZ], axis=1)
     Ixx, Iyy, Izz, Ixy, Ixz, Iyz = 0,0,0,0,0,0
     for index, row in atomDF_centered.iterrows():
         Ixx = Ixx + row['mass']*(row['y']**2 + row['z']**2)
         Iyy = Iyy + row['mass']*(row['x']**2 + row['z']**2)
         Izz = Izz + row['mass']*(row['x']**2 + row['y']**2)
         Ixy = Ixy - row['mass']*row['x']*row['y']
-        Ixz = Ixz - row['mass']*row['z']*row['y'] # Is this right?
+        Ixz = Ixz - row['mass']*row['x']*row['z']
         Iyz = Iyz - row['mass']*row['y']*row['z']
-    Iyz, Izx, Izy = Ixy, Ixz, Iyz
-    I = np.matrix([[Ixx, Ixy, Ixz],[Iyz, Iyy, Iyz],[Izx, Izy, Izz]])
+    Iyx, Izx, Izy = Ixy, Ixz, Iyz
+    I = np.matrix([[Ixx, Ixy, Ixz],[Iyx, Iyy, Iyz],[Izx, Izy, Izz]])
     eVals, eVecs = np.linalg.eigh(I)
+
+    print('eVals', eVals)
+
     return({'I':I, 'eVals':eVals, 'eVecs':eVecs})
 
 def theta_r_xyz(I_data):
     # Defining these constants locally for portability, but it
     # might be better to pull from global constants later.
-    h = (6.62606957 * 10**-34) #J*s
-    kB = 1.3806488 * 10**-23 #J/K
-    bohr_in_ang = 0.52917721092 # angstrom/bohr
-    bohr_in_m = bohr_in_ang / 10**10 # 
-    kg_per_amu = 1.660538921 * 10**-27 #kg/amu
+    # h = (6.62606957 * 10**-34) #J*s
+    # kB = 1.3806488 * 10**-23 #J/K
+    # bohr_in_ang = 0.52917721092 # angstrom/bohr
+    # bohr_in_m = bohr_in_ang / 10**10 # 
+    # kg_per_amu = 1.660538921 * 10**-27 #kg/amu
     m_per_angstrom = 10**-10 #m/Angstrom
     
-    eVals_kg_m2 = kg_per_amu * m_per_angstrom**2 * I_data['eVals']
+    eVals_kg_m2 = amu * m_per_angstrom**2 * I_data['eVals']
     theta_xyz = [h**2/(8 * np.pi**2 * I * kB) for I in eVals_kg_m2]
     return(theta_xyz)
 
@@ -538,13 +599,25 @@ def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
         bell_imag_ratio = raw_imag_ratio * bell(heavy_imag_freqs[0], light_imag_freqs[0], temperature)
         imag_ratios = np.array([raw_imag_ratio, wigner_imag_ratio, bell_imag_ratio])
 
-    partition_factors, enth_factors, entr_factors = partition_components(self, heavy_freqs, light_freqs, temperature)
+    partition_factors, enth_factors, entr_factors = partition_components_frequency(self, heavy_freqs, light_freqs, temperature)     ## AL: MUST ADD IN ROTATIONAL ENTROPY TERMS; tuple contains isotopologue objects
+
+    ## AL: tup is a tuple of a form (light_isotopologue, heavy_isotopologue)
+    atomDF_light = create_atomDF(tup[0])
+    atomDF_heavy = create_atomDF(tup[1])
+    
+
+    ## AL: rot_entr_factor is a scalar, while entr_factors in general currently contains components of S_vib -- we need to sum them first to get a total S_vib, THEN add S_rot
+    rot_entr_factor = partition_components_rotational(atomDF_heavy, atomDF_light, temperature, symmetry_factor=1)      ## AL: return to this, add way to change symmetry factor from default please
 
     if settings.DEBUG >= 2:
         factors = np.prod(partition_factors, axis=0)
         print("{3: ^8}Product Factor: {0}\n{3: ^8}Excitation Factor: {1}\n{3: ^8}ZPE Factor: {2}\n{3: ^8}".format(factors[0], factors[1], factors[2],""))
 
-    return (np.sum(enth_factors, axis=0), np.sum(entr_factors, axis=0), np.prod(partition_factors), imag_ratios, np.array(heavy_freqs), np.array(light_freqs))
+    enth_output = np.sum(enth_factors, axis = 0)
+    entr_output = np.sum(entr_factors, axis = 0)
+    entr_output = np.append(entr_output, rot_entr_factor)
+
+    return enth_output, entr_output, np.prod(partition_factors), imag_ratios, np.array(heavy_freqs), np.array(light_freqs)
 
 # calculates the Wigner tunnelling correction
 # multiplies the KIE by a factor of (1+u_H^2/24)/(1+u_D^2/24)
