@@ -70,40 +70,8 @@ class KIE_Calculation(object):
 
         for p in self.make_isotopologues():
             gs_tuple, ts_tuple, ts_mass = p
-            
-            # ref_isotopologue = gs_tuple[0]
-            # isotopologue = gs_tuple[1]
+
             name = gs_tuple[1].name
-
-
-            # ref_masses = ref_isotopologue.masses
-            # ref_positions = ref_isotopologue.system.positions
-            # ref_atomic_numbers = ref_isotopologue.system.atomic_numbers
-
-            # masses = isotopologue.masses
-            # positions = isotopologue.system.positions
-            # atomic_numbers = isotopologue.system.atomic_numbers
-
-
-            # ref_inertia_dict = {
-            #     "atom_num": ref_atomic_numbers,
-            #     "mass": ref_masses,
-            #     "x": [ref_position[0] for ref_position in ref_positions],
-            #     "y": [ref_position[1] for ref_position in ref_positions],
-            #     "z": [ref_position[2] for ref_position in ref_positions]
-            # }
-
-            # inertia_dict = {
-            #     "atom_num": atomic_numbers,
-            #     "mass": masses,
-            #     "x": [position[0] for position in positions],
-            #     "y": [position[1] for position in positions],
-            #     "z": [position[2] for position in positions]
-            # }
-
-            # self.ref_dfs[name] = pd.DataFrame(ref_inertia_dict)
-            # self.main_dfs[name] = pd.DataFrame(inertia_dict)
-    
 
             kie = KIE(name, gs_tuple, ts_tuple, temperature, path, self.config.scaling, self.config.imag_threshold, ts_mass)
             KIES[name] = kie
@@ -124,8 +92,6 @@ class KIE_Calculation(object):
                     k.apply_reference(KIES[self.config.reference_isotopologue])
 
         self.KIES = KIES
-        # for key, value in KIES:
-        #     print(f"{key} : {value}")
 
     # retrieves KIEs for autoquiver output
     # if report_tunnelling = True, the first number will be the inverted parabola KIE
@@ -245,8 +211,8 @@ class KIE_Calculation(object):
         if self.eie_flag == 0:
             # string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
             #string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell        Enthalpy        Entropy        H_ZPE        H_vib        S_vib        S_rot\n"
-            string += "Isotopologue {1: ^10s} {0: ^12s} {2: ^16s} {3: ^14s} {4: ^14s} {5: ^14s} {6: ^14s} {7: ^14s} {8: ^14s} {9: ^14s} {10: ^14s} {11: ^14s} {12: ^14s} {13: ^14s}".format("", "Name", "Uncorrected", "Wigner", "Bell", "Enthalpy", "Entropy", "H_ZPE", "H_VIB", "S_VIB", "S_ROT", "Approx. MMI", "EXC", "ZPE\n")
-            string += "                                     KIE               KIE            KIE"
+            string += "Isotopologue {1: ^10s} {0: ^12s} {2: ^16s} {3: ^16s} {4: ^14s} {5: ^14s} {6: ^14s} {7: ^14s} {8: ^14s} {9: ^14s} {10: ^14s} {11: ^14s} {12: ^14s} {13: ^14s} {14: ^14s} {15: ^14s} {16: ^14s}".format("", "Name", "Uncorrected(TH)", "Uncorrected(BM)", "Wigner(TH)", "Wigner(BM)", "Bell(TH)", "Bell(BM)", "Enthalpy", "Entropy", "H_ZPE", "H_VIB", "S_VIB", "S_ROT", "Approx. MMI", "EXC", "ZPE\n")
+            string += "                                     KIE               KIE             KIE             KIE           KIE           KIE"
         else:
             string += "Isotopologue        Name                                   EIE"
         keys = list(self.KIES.keys())
@@ -394,7 +360,7 @@ class KIE(object):
             #     print(self.value[1])
             #     print(self.value[2])
                 # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
-                return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {3: ^14.8f} {4: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f} {13: ^14.8f}".format("", self.name, self.value[0], self.value[1], self.value[2], self.kie_components[0], self.kie_components[1], self.kie_components[2], self.kie_components[3], self.kie_components[4], self.kie_components[5], self.kie_components[6], self.kie_components[7], self.kie_components[8])
+                return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {14: ^16.8f} {3: ^14.8f} {15: ^14.8f} {4: ^14.8f} {16: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f} {13: ^14.8f}".format("", self.name, self.value[0], self.value[1], self.value[2], self.kie_components[0], self.kie_components[1], self.kie_components[2], self.kie_components[3], self.kie_components[4], self.kie_components[5], self.kie_components[6], self.kie_components[7], self.kie_components[8], self.value[3], self.value[4], self.value[5])
                 # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f}".format("", self.name, self.value)
         else:
             "KIE Object for isotopomer {0}. No value has been calculated yet.".format(self.name)
