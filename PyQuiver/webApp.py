@@ -106,7 +106,7 @@ def kie():
         #-- process .txt files and prepare dataframe
         kie_data = {}
 
-        column_names = ['Isotopologue', 'Temperature', 'Uncorrected', 'Wigner', 'Bell', 'Enthalpy', 'Entropy', 'H_ZPE', 'H_VIB', 'S_VIB', 'S_ROT', 'Approx. MMI', 'EXC', 'ZPE']
+        column_names = ['Isotopologue', 'Temperature', 'Uncorrected (TH) KIE', 'Uncorrected (BM) KIE', 'Wigner (TH) KIE', 'Wigner (BM) KIE' , 'Bell (TH) KIE','Bell (BM) KIE', 'Enthalpy', 'Entropy', 'H_ZPE', 'H_VIB', 'S_VIB', 'S_ROT', 'Approx. MMI', 'EXC', 'ZPE']
         df = pd.DataFrame(columns=column_names)
 
         start_temp = float(temperature[0])  # reset temperature to start to begin iterating again
@@ -124,7 +124,7 @@ def kie():
                         continue                # skip any lines discussing reference/absolute isotopologue or any irrelevant lines 
 
                     isotopologue_name = line_components[1]
-                    all_values = list(map(float, line_components[2:14]))     # temporary? this contains enthalpy and entropy
+                    all_values = list(map(float, line_components[2:17]))     # temporary? this contains enthalpy and entropy
                     kie_values = list(map(float, line_components[2:5]))     # this does NOT contain enthalpy and entropy
 
                     if isotopologue_name not in kie_data:
