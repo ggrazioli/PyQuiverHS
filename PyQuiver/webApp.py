@@ -174,9 +174,64 @@ def kie():
         return send_file(os.path.join(original_cwd, SESSION_FOLDER, 'outputs.zip'), mimetype="application/zip", as_attachment=True, download_name="outputs.zip")
 
 # Load the EIE page
-@app.route('/eie')
+@app.route('/eie', methods=['GET', 'POST'])
 def eie():
-    return render_template('eie.html')
+    if request.method == 'GET':
+        return render_template('eie.html')
+    elif request.method == 'POST':
+        original_cwd = os.getcwd()
+        temperature = request.form.get('temperature') # TODO: implement the temperature range for this
+        symmetry_number = request.form.get('symmetry_number')
+        scaling_factor = request.form.get('scaling_factor')
+
+        # Generate a folder for all of the files during the calculations
+        SESSION_FOLDER = generate_session()
+        app.config['SESSION_FOLDER'] = SESSION_FOLDER
+
+        # Assigning variables to required files that were uploaded.
+        config_file = request.files.get('config_file')
+
+        # Refers the file for EIE Calculations.
+        gaussian_file = request.files.get('gaussian')
+
+        # TODO make this more efficient, if possible, by not saving the files on the drive.
+        # Save the uploaded file if they exist.
+        if config_file:
+            config_path = os.path.join(app.config['SESSION_FOLDER'], 'my.config')
+            config_file.save(config_path)
+        else: 
+            # TODO write a method in here and the HTML file to handle the case of use not uploading the or uploading the incorrect config file.
+            ...
+
+        if gaussian_file:
+            gaussian_path = os.path.join(app.config['SESSION_FOLDER'], 'gaussian.log')
+            gaussian_file.save(gaussian_path)
+
+        else: 
+            # TODO write a method in here and the HTML file to handle the case of use not uploading the or uploading the incorrect gaussian file. Note that the gaussian file should be generated using the verbose flag for the program to run properly.
+            ...
+
+        # The name and the file path to save the output
+        # TODO implement a method to directly send the file to user instead of saving it on the server first.
+        output_file_path = os.path.join(app.config['SESSION_FOLDER'], f'output_{temperature}.txt')
+
+        # run the python program
+        command = command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_working.py')} {config_path} {gaussian_path} {gaussian_path} {temperature} {output_file_path}"
+        os.system(command)
+        #os.system('clear')
+
+        # If the calculations is long, the file may not be immidiately ready.
+        # This timeout ensures that the reason for error was not the length of calculations
+        timeout = 5 #seconds.
+        start_time = time.time()
+        while not os.path.exists(output_file_path):
+            if time.time() - start_time > timeout:
+                # TODO make this a modal error.
+                return "Output file did not generate.", 404
+            # Small delay to check again.
+            time.sleep(0.1)
+
+        return send_file(os.path.join(original_cwd, SESSION_FOLDER, output_file_path), mimetype='text/plain', as_attachment=True, download_name=SESSION_FOLDER)
 
 
 # Load the config generator page
