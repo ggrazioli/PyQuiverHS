@@ -14,6 +14,9 @@ from utility import proj, normalize, test_orthogonality, schmidt
 from constants import DEFAULT_MASSES, PHYSICAL_CONSTANTS, LINEARITY_THRESHOLD, DROP_NUM_LINEAR
 from config import Config
 
+from kie_DS import KIE_Calculation
+from eie_DS import EIE_Calculation
+
 # represents a geometric arrangement of atoms with specific masses
 class Isotopologue(object):
     def __init__(self, id_, system, masses):
@@ -206,7 +209,7 @@ class System(object):
                 if eigenvalues_match:
                     eigenvalues_values = eigenvalues_match.groups()
                     for values in eigenvalues_values[0:]:
-                        row = [float(val) for val in re.findall(r"[-\d.]+", values)]
+                        row = [float(val) for val in re.findall(r"\d+\.\d{5,}", values)]
                         self.eigenvalues_matrix.append(row)
 
                 # use standard orientation if possible
@@ -389,13 +392,17 @@ if __name__ == "__main__":
     parser.add_argument('ts', help='transition state file path')
     parser.add_argument('temp', help='temperature')
     parser.add_argument('file', help='output filepath')
+    parser.add_argument('type', help='KIE or EIE')
 
     args = parser.parse_args()
     if args.debug:
         settings.DEBUG = args.debug + 1
 
-    from kie_DS import KIE_Calculation
-    calc = KIE_Calculation(args.config, args.gs, args.ts, float(args.temp), args.file, style=args.style)
+    if args.type == 'KIE':
+        calc = KIE_Calculation(args.config, args.gs, args.ts, float(args.temp), args.file, style=args.style)
+    elif args.type == 'EIE':
+        calc = EIE_Calculation(args.config, args.gs, args.ts, float(args.temp), args.file, style=args.style)
+    
     with open(args.file, 'a') as file:
         file.write(f'At {args.temp}K')
         file.write('\n')
