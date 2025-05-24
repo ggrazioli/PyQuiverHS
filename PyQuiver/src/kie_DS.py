@@ -24,6 +24,7 @@ r = PHYSICAL_CONSTANTS["r"]
 kB = PHYSICAL_CONSTANTS["kB"]  # in J/K
 kcalToJ = PHYSICAL_CONSTANTS["kcalToJ"]
 
+global_counter = 0
 
 class KIE_Calculation(object):
     def __init__(self, config, gs, ts, temperature, path, style="g09"):
@@ -56,13 +57,13 @@ class KIE_Calculation(object):
             raise TypeError(
                 "ts argument must be either a filepath or quiver.System object."
             )
-
-        print(vars(self.gs_system))
-        print("and")
-        print(vars(self.ts_system))
+        if settings.DEBUG >= 2:
+            print(vars(self.gs_system))
+            print("and")
+            print(vars(self.ts_system))
 
         # set the eie_flag to the recognized uninitialized value (used for checking if there are inconsistent calculation types)
-        self.eie_flag = 0
+        self.eie_flag = -1
 
         if settings.DEBUG != 0:
             print(self.config)
@@ -96,7 +97,7 @@ class KIE_Calculation(object):
 
         for name, k in KIES.items():
             if name != self.config.reference_isotopologue:
-                if self.eie_flag == 0:
+                if self.eie_flag == -1:
                     eie_flag_iso = name
                     self.eie_flag = k.eie_flag
                 else:
@@ -221,7 +222,8 @@ class KIE_Calculation(object):
             replacement_mass = REPLACEMENTS[replacement_label]
             gs_rules[gs_atom_number - 1] = replacement_mass
             ts_rules[ts_atom_number - 1] = replacement_mass
-        print(f"And then we have ts_rules which is {ts_rules}")
+        if settings.DEBUG >= 1:
+            print(f"And then we have ts_rules which is {ts_rules}")
         return gs_rules, ts_rules
 
     # make the requested isotopic substitutions
@@ -275,7 +277,21 @@ class KIE_Calculation(object):
             )
             string += "                                     KIE               KIE             KIE             KIE           KIE           KIE"
         else:
-            string += "Isotopologue        Name                                   EIE"
+            string += "Isotopologue {1: ^10s} {0: ^12s} {2: ^16s} {3: ^16s} {4: ^14s} {5: ^14s} {6: ^14s} {7: ^14s} {8: ^14s} {9: ^14s} {10: ^14s} {11: ^14s} {12: ^14s}".format(
+                "",
+                "Name",
+                "EIE(TH)",
+                "EIE(BM)",
+                "Enthalpy",
+                "Entropy",
+                "H_ZPE",
+                "H_VIB",
+                "S_VIB",
+                "S_ROT",
+                "Approx. MMI",
+                "EXC",
+                "ZPE\n",
+            )
         keys = list(self.KIES.keys())
         if (
             self.config.reference_isotopologue != "default"
@@ -317,7 +333,7 @@ class KIE(object):
     ):
         # copy fields
         # the associated calculation object useful for pulling config fields etc.
-        self.eie_flag = 0
+        self.eie_flag = -1
         self.name = name
         self.imag_threshold = imag_threshold
         self.gs_tuple, self.ts_tuple = gs_tuple, ts_tuple
@@ -332,12 +348,18 @@ class KIE(object):
 
         ## AL addition:
         # self.components = self.calculate_kie_components()
-        self.kie_components = self.calculate_kie_components()
+        # TODO this may cause double calculations.
+        # self.kie_components = self.calculate_kie_components()
 
     def calculate_kie(self):
-
-        kie_components = self.calculate_kie_components()
-
+        uncorrected_kie = 0
+        wigner_kie = 0
+        bell_kie = 0
+        BM_uncorrected_kie = 0
+        BM_wigner_kie = 0
+        BM_bell_kie = 0
+        self.kie_components = self.calculate_kie_components()
+        
         light_small_freqs, light_imag_freqs, light_freqs, light_num_small = (
             self.ts_tuple[0].calculate_frequencies(
                 self.imag_threshold, scaling=self.scaling
@@ -350,32 +372,27 @@ class KIE(object):
         )
 
         # Thermodynamic method
-        uncorrected_kie = kie_components[0] * kie_components[1]
-        wigner_kie = uncorrected_kie * wigner(
-            heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
-        )
-        bell_kie = uncorrected_kie * bell(
-            heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
-        )
+        uncorrected_kie = self.kie_components[0] * self.kie_components[1]
+        if self.eie_flag == 0:
+            wigner_kie = uncorrected_kie * wigner(
+                heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
+            )
+            bell_kie = uncorrected_kie * bell(
+                heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
+            )
 
         # BM method
         # kie_components[6] is the aproximate MMI Factor.
         # kie_components[7] is the Exciation Factor.
         # kie_components[8] is the ZPE Factor.
-        BM_uncorrected_kie = kie_components[6] * kie_components[7] * kie_components[8]
-        BM_wigner_kie = BM_uncorrected_kie * wigner(
-            heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
-        )
-        BM_bell_kie = BM_uncorrected_kie * bell(
-            heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
-        )
-
-        print(
-            f"Final KIE is {uncorrected_kie} \nWigner corrected KIE is {wigner_kie} \nBell corrected KIE is {bell_kie}"
-        )
-        print(
-            f"Final BM KIE is {BM_uncorrected_kie} \nBM Wigner corrected KIE is {BM_wigner_kie} \nBM Bell corrected KIE is {BM_bell_kie}"
-        )
+        BM_uncorrected_kie = self.kie_components[6] * self.kie_components[7] * self.kie_components[8]
+        if self.eie_flag == 0:
+            BM_wigner_kie = BM_uncorrected_kie * wigner(
+                heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
+            )
+            BM_bell_kie = BM_uncorrected_kie * bell(
+                heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
+            )
 
         kie_values = np.array(
             [
@@ -390,22 +407,6 @@ class KIE(object):
 
         return kie_values
 
-        # if ts_imag_ratios is not None:
-        #     if self.eie_flag == -1:
-        #         self.eie_flag = 0
-        #     else:
-        #         raise ValueError("quiver attempted to run a KIE calculation after an EIE calculation. Check the frequency threshold.")
-
-        #     kies = ts_imag_ratios * rpfr_gs/rpfr_ts
-        #     return kies
-        # else:
-        #     if self.eie_flag == -1:
-        #         self.eie_flag = 1
-        #     else:
-        #         raise ValueError("quiver attempted to run a KIE calculation after an EIE calculation. Check the frequency threshold.")
-
-        #     eie = rpfr_gs/rpfr_ts
-        #     return eie
 
     def calculate_kie_components(self):
         if settings.DEBUG >= 2:
@@ -442,11 +443,17 @@ class KIE(object):
         if settings.DEBUG >= 2:
             print("    rpfr_ts:", np.prod(rpfr_ts))
 
+
+
         MMI_factor = (
             np.prod(partition_factors_gs[:, 0])
             / np.prod(partition_factors_ts[:, 0])
-            * ts_imag_ratios[0]
         )
+        if ts_imag_ratios is not None:
+            self.eie_flag = 0
+            MMI_factor *= ts_imag_ratios[0]
+        else:
+            self.eie_flag = 1 
         EXC_factor = np.prod(partition_factors_gs[:, 1]) / np.prod(
             partition_factors_ts[:, 1]
         )
@@ -454,11 +461,6 @@ class KIE(object):
             partition_factors_ts[:, 2]
         )
 
-        print("***************HERE***************")
-        print("MMI:", MMI_factor)
-        print("EXC:", EXC_factor)
-        print("ZPE:", ZPE_factor)
-        print("***************HERE***************")
 
         final_enth_sum = enth_ts_sums - enth_gs_sums
         final_enth_zpe = np.exp(final_enth_sum[0] / (r * self.temperature))
@@ -469,6 +471,17 @@ class KIE(object):
         final_entr_vib = np.exp(final_entr_sum[0] / rCal)
         final_entr_rot = np.exp(final_entr_sum[1] / rCal)
         final_entr = final_entr_vib * final_entr_rot
+
+        if settings.DEBUG >= 1:
+            print("***************HERE***************")
+            print("MMI:", MMI_factor)
+            print("EXC:", EXC_factor)
+            print("ZPE:", ZPE_factor)
+            print("H_ZPE:", final_enth_zpe)
+            print("H_vib:", final_enth_vib)
+            print("S_Vib:", final_entr_vib)
+            print("S_ROT:", final_entr_rot)
+            print("***************HERE***************")
 
         return (
             final_enth,
@@ -492,16 +505,22 @@ class KIE(object):
     def __str__(self):
         if self.value is not None:
             if self.eie_flag == 1:
-                return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} ".format(
-                    "", self.name, self.value
+                return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {3: ^14.8f} {4: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f}".format(
+                    "",
+                    self.name,
+                    self.value[0],
+                    self.value[3],
+                    self.kie_components[0],
+                    self.kie_components[1],
+                    self.kie_components[2],
+                    self.kie_components[3],
+                    self.kie_components[4],
+                    self.kie_components[5],
+                    self.kie_components[6],
+                    self.kie_components[7],
+                    self.kie_components[8],
                 )
             else:
-                #     print(self.name)
-                #     print(len(self.value))
-                #     print(self.value[0])
-                #     print(self.value[1])
-                #     print(self.value[2])
-                # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f} {3: ^14.8f} {4: ^17.8f}".format("", self.name, self.value[0], self.value[1], self.value[2])
                 return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {14: ^16.8f} {3: ^14.8f} {15: ^14.8f} {4: ^14.8f} {16: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f} {13: ^14.8f}".format(
                     "",
                     self.name,
@@ -521,7 +540,6 @@ class KIE(object):
                     self.value[4],
                     self.value[5],
                 )
-                # return "Isotopologue {1: >10s} {0: >33s} {2: ^12.8f}".format("", self.name, self.value)
         else:
             "KIE Object for isotopomer {0}. No value has been calculated yet.".format(
                 self.name
@@ -552,7 +570,8 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature):
     enth_components = []
     entr_components = []
     i = 0
-    print(f"The value of ts_mass is {self.ts_mass.values()}")
+    global global_counter
+    global_counter += 1
     for wavenumber_light, wavenumber_heavy in zip(freqs_light, freqs_heavy):
         i += 1
         product_factor = wavenumber_heavy / wavenumber_light
@@ -580,10 +599,10 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature):
         # entr_components.append([S_vib_h-S_vib_l, S_rot_h-S_rot_l])
         entr_components.append([S_vib_h - S_vib_l])
 
-        print(
-            "MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    S_vib_h: %9.5f  S_vib_l: %9.5f"
-            % (i, wavenumber_light, wavenumber_heavy, S_vib_h, S_vib_l)
-        )
+        # print(
+        #     "MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    S_vib_h: %9.5f  S_vib_l: %9.5f"
+        #     % (i, wavenumber_light, wavenumber_heavy, S_vib_h, S_vib_l)
+        # )
         if settings.DEBUG >= 1:
             overall_factor = product_factor * excitation_factor * ZPE_factor
             # print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    FRQ RATIO: %9.5f    ZPE FACTOR: %9.5f    CONTRB TO RIPF: %9.5f" % (i, wavenumber_light, wavenumber_heavy, product_factor, ZPE_factor, overall_factor))
@@ -665,9 +684,8 @@ def get_I_data(atomDF):
     Iyx, Izx, Izy = Ixy, Ixz, Iyz
     I = np.matrix([[Ixx, Ixy, Ixz], [Iyx, Iyy, Iyz], [Izx, Izy, Izz]])
     eVals, eVecs = np.linalg.eigh(I)
-
-    print("eVals", eVals)
-
+    if settings.DEBUG >= 2:
+        print("eVals", eVals)
     return {"I": I, "eVals": eVals, "eVecs": eVecs}
 
 
