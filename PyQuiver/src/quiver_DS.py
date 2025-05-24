@@ -219,7 +219,7 @@ class System(object):
                     sys.exit(1)
 
                 # read in the number of atoms
-                m = re.search("NAtoms\= +([0-9]+)", out_data)
+                m = re.search(r"NAtoms= +([0-9]+)", out_data)
                 if m:
                     number_of_atoms = int(m.group(1))
                 else:
@@ -252,7 +252,7 @@ class System(object):
 
                 # use standard orientation if possible
                 for m in re.finditer(
-                    "Standard orientation(.+?)Rotational constants \(GHZ\)",
+                    r"Standard orientation(.+?)Rotational constants (GHZ)",
                     out_data,
                     re.DOTALL,
                 ):
@@ -271,7 +271,7 @@ class System(object):
 
                 if m is None:
                     for m in re.finditer(
-                        "Input orientation(.+?)Rotational constants \(GHZ\)",
+                        r"Input orientation(.+?)Rotational constants (GHZ)",
                         out_data,
                         re.DOTALL,
                     ):
@@ -370,12 +370,12 @@ class System(object):
         raw_archive = re.findall(r"1\\1\\GINC(.+?)\\(\s*)@", data, re.DOTALL)
         found_frequencies = False
         for archive in raw_archive:
-            archive = re.sub("[\s+]", "", archive[0])
+            archive = re.sub(r"[s+]", "", archive[0])
             # print(archive[:1000])
             # print("...")
             # print(archive[-1000:])
             # print("---")
-            archive = re.search("NImag\=(.+?)$", archive, re.DOTALL)
+            archive = re.search(r"NImag=(.+?)$", archive, re.DOTALL)
             # print(archive)
             # print("*")
             # print()
@@ -464,20 +464,14 @@ if __name__ == "__main__":
     parser.add_argument("ts", help="transition state file path")
     parser.add_argument("temp", help="temperature")
     parser.add_argument("file", help="output filepath")
-    parser.add_argument("type", help="KIE or EIE")
 
     args = parser.parse_args()
     if args.debug:
         settings.DEBUG = args.debug + 1
 
-    if args.type == "KIE":
-        calc = KIE_Calculation(
-            args.config, args.gs, args.ts, float(args.temp), args.file, style=args.style
-        )
-    elif args.type == "EIE":
-        calc = EIE_Calculation(
-            args.config, args.gs, args.ts, float(args.temp), args.file, style=args.style
-        )
+    calc = KIE_Calculation(
+        args.config, args.gs, args.ts, float(args.temp), args.file, style=args.style
+    )
 
     with open(args.file, "a") as file:
         file.write(f"At {args.temp}K")
