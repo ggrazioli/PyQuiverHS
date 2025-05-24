@@ -84,7 +84,7 @@ def kie():
                 app.config["SESSION_FOLDER"], f"output_{start_temp}.txt"
             )
 
-            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_DS.py')} -v {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path} KIE"
+            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_DS.py')} -v {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path}"
             os.system(command)
             start_temp += float(temp_increment)
             # os.system('clear')
@@ -272,7 +272,7 @@ def eie():
             )
 
             # run the python program
-            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_DS.py')} {config_path} {gaussian_path} {gaussian_path} {start_temp} {output_file_path} EIE"
+            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_DS.py')} {config_path} {gaussian_path} {gaussian_path} {start_temp} {output_file_path}"
             os.system(command)
             start_temp += float(temp_increment)
         # os.system('clear')
@@ -333,10 +333,11 @@ def eie():
                 for line in lines[4:]:  # skip 5-line header
                     line_components = line.strip().split()
 
-                    if "EIEs" in line_components or len(line_components) < 5:
+                    if "KIEs" in line_components or len(line_components) < 5:
                         continue  # skip any lines discussing reference/absolute isotopologue or any irrelevant lines
 
                     isotopologue_name = line_components[1]
+                    print(line_components)
                     all_values = list(
                         map(float, line_components[2:14])
                     )  # temporary? this contains enthalpy and entropy
