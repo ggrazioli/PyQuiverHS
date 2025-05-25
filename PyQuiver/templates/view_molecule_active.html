@@ -2,33 +2,43 @@
 <html>
 <head>
     <title>Gaussian Molecule Viewer</title>
-    <script src="https://3Dmol.org/build/3Dmol-min.js"></script>
+    <script src="https://3dmol.org/build/3Dmol-min.js"></script>
+    <style>
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            width: 100%;
+            overflow: hidden;
+        }
+        #viewer {
+            width: 100%;
+            height: 100%;
+        }
+    </style>
 </head>
 <body>
-    <div id="viewer" style="width: 1200px; height: 800px;"></div>
+    <div id="viewer"></div>
     <script>
         window.onload = function() {
             const xyzData = `{{ xyz_data | safe }}`.trim();
-            if (xyzData.length > 0) {
-                const viewer = $3Dmol.createViewer("viewer", { backgroundColor: "white" });
 
-                // Add the molecule model
+            if (xyzData.length > 0) {
+                const viewer = $3Dmol.createViewer("viewer", {
+                    backgroundColor: "white"
+                });
+
                 viewer.addModel(xyzData, "xyz");
                 viewer.setStyle({}, {stick: {}});
 
-                // Add labels for each atom
-                let lines = xyzData.split("\n").slice(2); // Ignore first two lines (XYZ format)
+                // Add labels
+                const lines = xyzData.split("\n").slice(2);
                 lines.forEach((line, index) => {
-                    let parts = line.trim().split(/\s+/);
+                    const parts = line.trim().split(/\s+/);
                     if (parts.length >= 4) {
-                        let atomType = parts[0]; // Atom symbol (C, O, H, etc.)
-                        let x = parseFloat(parts[1]);
-                        let y = parseFloat(parts[2]);
-                        let z = parseFloat(parts[3]);
-                        let label = `${atomType}${index + 1}`; // AtomType + Index
-
-                        viewer.addLabel(label, {
-                            position: {x, y, z},
+                        const [atom, x, y, z] = parts;
+                        viewer.addLabel(`${atom}${index + 1}`, {
+                            position: { x: +x, y: +y, z: +z },
                             fontSize: 12,
                             fontColor: "black",
                             backgroundColor: "white"
@@ -36,10 +46,10 @@
                     }
                 });
 
-                viewer.zoomTo();
+                viewer.zoomTo();  // Zoom and center
                 viewer.render();
             } else {
-                console.error("XYZ Data is empty, molecule cannot be displayed.");
+                console.error("XYZ Data is empty.");
             }
         };
     </script>
