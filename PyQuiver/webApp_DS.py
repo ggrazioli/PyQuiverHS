@@ -84,7 +84,7 @@ def kie():
                 app.config["SESSION_FOLDER"], f"output_{start_temp}.txt"
             )
 
-            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_DS.py')} -v {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path}"
+            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_DS.py')} {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path}"
             os.system(command)
             start_temp += float(temp_increment)
             # os.system('clear')
@@ -213,7 +213,7 @@ def kie():
             os.path.join(original_cwd, SESSION_FOLDER, "outputs.zip"),
             mimetype="application/zip",
             as_attachment=True,
-            download_name="outputs.zip",
+            download_name=f"{SESSION_FOLDER}.zip",
         )
 
 
