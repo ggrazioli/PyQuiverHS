@@ -3,7 +3,7 @@ import numpy as np
 
 # from quiver import System, Isotopologue, DEBUG
 import pandas as pd
-import quiver_working as quiver
+import quiver_DS as quiver
 import settings
 from file_writer import FileWriter
 from config import Config
@@ -25,6 +25,7 @@ kB = PHYSICAL_CONSTANTS["kB"]  # in J/K
 kcalToJ = PHYSICAL_CONSTANTS["kcalToJ"]
 
 global_counter = 0
+
 
 class KIE_Calculation(object):
     def __init__(self, config, gs, ts, temperature, path, style="g09"):
@@ -359,7 +360,7 @@ class KIE(object):
         BM_wigner_kie = 0
         BM_bell_kie = 0
         self.kie_components = self.calculate_kie_components()
-        
+
         light_small_freqs, light_imag_freqs, light_freqs, light_num_small = (
             self.ts_tuple[0].calculate_frequencies(
                 self.imag_threshold, scaling=self.scaling
@@ -385,7 +386,9 @@ class KIE(object):
         # kie_components[6] is the aproximate MMI Factor.
         # kie_components[7] is the Exciation Factor.
         # kie_components[8] is the ZPE Factor.
-        BM_uncorrected_kie = self.kie_components[6] * self.kie_components[7] * self.kie_components[8]
+        BM_uncorrected_kie = (
+            self.kie_components[6] * self.kie_components[7] * self.kie_components[8]
+        )
         if self.eie_flag == 0:
             BM_wigner_kie = BM_uncorrected_kie * wigner(
                 heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
@@ -406,7 +409,6 @@ class KIE(object):
         )
 
         return kie_values
-
 
     def calculate_kie_components(self):
         if settings.DEBUG >= 2:
@@ -443,24 +445,20 @@ class KIE(object):
         if settings.DEBUG >= 2:
             print("    rpfr_ts:", np.prod(rpfr_ts))
 
-
-
-        MMI_factor = (
-            np.prod(partition_factors_gs[:, 0])
-            / np.prod(partition_factors_ts[:, 0])
+        MMI_factor = np.prod(partition_factors_gs[:, 0]) / np.prod(
+            partition_factors_ts[:, 0]
         )
         if ts_imag_ratios is not None:
             self.eie_flag = 0
             MMI_factor *= ts_imag_ratios[0]
         else:
-            self.eie_flag = 1 
+            self.eie_flag = 1
         EXC_factor = np.prod(partition_factors_gs[:, 1]) / np.prod(
             partition_factors_ts[:, 1]
         )
         ZPE_factor = np.prod(partition_factors_gs[:, 2]) / np.prod(
             partition_factors_ts[:, 2]
         )
-
 
         final_enth_sum = enth_ts_sums - enth_gs_sums
         final_enth_zpe = np.exp(final_enth_sum[0] / (r * self.temperature))
