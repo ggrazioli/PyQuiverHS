@@ -1,71 +1,146 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KIE Calculations</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #c7ded3;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            width: 500px;
-            margin: auto;
-            background: #c7ded3;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        button {
-            background-color: #4a7b74;
-            color: white;
-            border: none;
-            padding: 10px;
-            margin: 5px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #3d615d;
-        }
-        input {
-            width: 150px;
-            padding: 5px;
-            margin: 5px;
-            text-align: center;
-            border-radius: 5px;
-            border: 1px solid #333;
-            background-color: black;
-            color: white;
-        }
-        .label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .input-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>KIE Viewer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #3498db;
+      --hover: #2980b9;
+      --bg: #f4f6f8;
+      --white: #ffffff;
+      --text: #2c3e50;
+      --radius: 12px;
+      --transition: 0.3s ease;
+    }
+
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      margin: 0;
+      padding: 40px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .container {
+      background: var(--white);
+      padding: 30px 40px;
+      border-radius: var(--radius);
+      max-width: 600px;
+      width: 100%;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      animation: fadeIn 0.5s ease;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    input[type="file"] {
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: var(--radius);
+      background: #f9f9f9;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 12px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-weight: 600;
+      transition: background var(--transition);
+    }
+
+    button:hover {
+      background: var(--hover);
+    }
+
+    .iframe-wrapper {
+      display: none; /* initially hidden */
+      justify-content: center;
+      margin-top: 40px;
+      width: 100%;
+    }
+
+    iframe {
+      width: 100%;
+      max-width: 800px;
+      height: 600px;
+      border: none;
+      border-radius: 12px;
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.08);
+      background-color: #fff;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <a href="{{ url_for('home') }}">Back to Home</a>
-        <h2>KIE Calculations!</h2>
-        
-        <form action="/view_molecule" method="post" enctype="multipart/form-data" target="_blank">
-            <div class="label">
-                <span>Molecule to view</span>
-                <input type="file" name="file" accept=".out,.log" required>
-            </div>
-            <button type="submit">View!</button>
-        </form>
-    </div>
+
+  <div class="container">
+    <a href="{{ url_for('home') }}">← Back to Home</a>
+    <h2>View a Molecule</h2>
+
+    <form id="viewerForm" enctype="multipart/form-data">
+      <input type="file" name="file" accept=".out,.log" required />
+      <button type="submit">View Molecule</button>
+    </form>
+  </div>
+
+  <!-- Viewer will be loaded here -->
+  <div class="iframe-wrapper" id="viewerContainer">
+    <iframe id="viewerFrame"></iframe>
+  </div>
+
+  <script>
+    const form = document.getElementById('viewerForm');
+    const frame = document.getElementById('viewerFrame');
+    const viewerContainer = document.getElementById('viewerContainer');
+
+    form.addEventListener('submit', async function (e) {
+      e.preventDefault();
+
+      const formData = new FormData(form);
+
+      // Send form data via fetch
+      const response = await fetch('/view_molecule', {
+        method: 'POST',
+        body: formData
+      });
+
+      if (response.ok) {
+        const blob = await response.blob();
+        const objectUrl = URL.createObjectURL(blob);
+        frame.src = objectUrl;
+        viewerContainer.style.display = 'flex';
+      } else {
+        alert('Error loading viewer');
+      }
+    });
+  </script>
+
 </body>
 </html>
