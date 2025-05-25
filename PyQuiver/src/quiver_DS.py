@@ -19,9 +19,6 @@ from constants import (
 )
 from config import Config
 
-from kie_DS import KIE_Calculation
-from eie_DS import EIE_Calculation
-
 
 # represents a geometric arrangement of atoms with specific masses
 class Isotopologue(object):
@@ -219,7 +216,7 @@ class System(object):
                     sys.exit(1)
 
                 # read in the number of atoms
-                m = re.search(r"NAtoms= +([0-9]+)", out_data)
+                m = re.search("NAtoms\= +([0-9]+)", out_data)
                 if m:
                     number_of_atoms = int(m.group(1))
                 else:
@@ -252,7 +249,7 @@ class System(object):
 
                 # use standard orientation if possible
                 for m in re.finditer(
-                    r"Standard orientation(.+?)Rotational constants (GHZ)",
+                    "Standard orientation(.+?)Rotational constants \(GHZ\)",
                     out_data,
                     re.DOTALL,
                 ):
@@ -271,7 +268,7 @@ class System(object):
 
                 if m is None:
                     for m in re.finditer(
-                        r"Input orientation(.+?)Rotational constants (GHZ)",
+                        "Input orientation(.+?)Rotational constants \(GHZ\)",
                         out_data,
                         re.DOTALL,
                     ):
@@ -370,12 +367,12 @@ class System(object):
         raw_archive = re.findall(r"1\\1\\GINC(.+?)\\(\s*)@", data, re.DOTALL)
         found_frequencies = False
         for archive in raw_archive:
-            archive = re.sub(r"[s+]", "", archive[0])
+            archive = re.sub("[\s+]", "", archive[0])
             # print(archive[:1000])
             # print("...")
             # print(archive[-1000:])
             # print("---")
-            archive = re.search(r"NImag=(.+?)$", archive, re.DOTALL)
+            archive = re.search("NImag\=(.+?)$", archive, re.DOTALL)
             # print(archive)
             # print("*")
             # print()
@@ -469,10 +466,11 @@ if __name__ == "__main__":
     if args.debug:
         settings.DEBUG = args.debug + 1
 
+    from kie_DS import KIE_Calculation
+
     calc = KIE_Calculation(
         args.config, args.gs, args.ts, float(args.temp), args.file, style=args.style
     )
-
     with open(args.file, "a") as file:
         file.write(f"At {args.temp}K")
         file.write("\n")
