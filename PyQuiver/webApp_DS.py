@@ -497,5 +497,10 @@ def view_molecule():
     elif request.method == "GET":
         return render_template("view_molecule_form.html")
 
+@app.route("/paper", methods=["GET"])
+def paper():
+    if request.method == "GET":
+        return send_file("paper.pdf", mimetype='application/pdf', as_attachment=True, download_name='technical_paper.pdf')
 
-app.run()
+if __name__ == '__main__':
+    app.run()
