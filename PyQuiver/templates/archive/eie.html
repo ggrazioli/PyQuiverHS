@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KIE Calculations</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #c7ded3;
+            text-align: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            width: 500px;
+            margin: auto;
+            background: #c7ded3;
+            padding: 20px;
+            border-radius: 10px;
+        }
+        button {
+            background-color: #4a7b74;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+        button:hover {
+            background-color: #3d615d;
+        }
+        input {
+            width: 150px;
+            padding: 5px;
+            margin: 5px;
+            text-align: center;
+            border-radius: 5px;
+            border: 1px solid #333;
+            background-color: black;
+            color: white;
+        }
+        .label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="{{ url_for('home') }}">Back to Home</a>
+        <h2>EIE Calculations!</h2>
+        
+        <form action="/eie" method="post" enctype="multipart/form-data">
+            <div class="label">
+                <span>Configuration File</span>
+                <input type="file" name="config_file" accept=".config" required>
+            </div>
+            <div class="label">
+                <span>Gaussian File</span>
+                <input type="file" name="gaussian" accept=".out,.log" required>
+            </div>
+            <div class="input-group">
+                <div>
+                    <label>Temp. (K)</label>
+                    <input type="text" name="temperature">
+                </div>
+                <div>
+                    <label>σ - Rotational Symmetry Number</label>
+                    <input type="text" name="symmetry_number" value="1.0">
+                </div>
+            </div>
+            <p style="color: red; font-size: small;">Either 1 temp or a range with 2 temps. Separate temps with a comma.</p>
+            
+            <div class="input-group">
+                <div>
+                    <label>Temp. Increment</label>
+                    <input type="text" name="temp_increment" value="1">
+                </div>
+                <div>
+                    <input type="text" name="temp_increment_duplicate" value="1.0">
+                </div>
+            </div>
+            <p style="color: red; font-size: small;">Only for a temp. range.</p>
+            
+            <div class="input-group">
+                <div>
+                    <label>Frequency Scaling Factor</label>
+                    <input type="text" name="scaling_factor" value="1.0">
+                </div>
+                <div>
+                    <input type="text" name="scaling_factor_duplicate" value="1.0">
+                </div>
+            </div>
+            
+            <button type="submit">Calculate!</button>
+        </form>
+    </div>
+</body>
+</html>
