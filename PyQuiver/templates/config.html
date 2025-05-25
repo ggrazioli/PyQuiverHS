@@ -1,137 +1,239 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Configugration file generator</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #c7ded3;
-            text-align: center;
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            width: 500px;
-            margin: auto;
-            background: #c7ded3;
-            padding: 20px;
-            border-radius: 10px;
-        }
-        button {
-            background-color: #4a7b74;
-            color: white;
-            border: none;
-            padding: 10px;
-            margin: 5px;
-            cursor: pointer;
-            border-radius: 5px;
-        }
-        button:hover {
-            background-color: #3d615d;
-        }
-        input {
-            width: 150px;
-            padding: 5px;
-            margin: 5px;
-            text-align: center;
-            border-radius: 5px;
-            border: 1px solid #333;
-            background-color: black;
-            color: white;
-        }
-        .label {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 10px;
-        }
-        .input-group {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-        }
-    </style>
-    <script>
-        let fieldCount = 1;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Configuration File Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #3498db;
+      --hover: #2980b9;
+      --bg: #f4f6f8;
+      --white: #ffffff;
+      --text: #2c3e50;
+      --error: #e74c3c;
+      --radius: 12px;
+      --transition: 0.3s ease;
+    }
 
-        function addField() {
-            fieldCount++;
-            const container = document.getElementById("input-container");
-            const newField = document.createElement("div");
-            newField.innerHTML = `<label>Isotopomers ${fieldCount}:</label>
-                                <input type="text" name="isotopomers[]" required>
-                                <button type="button" onclick="removeField(this)">Remove</button>`;
-            container.appendChild(newField);
-            updateLabels();
-        }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        function removeField(button) {
-            const container = document.getElementById("input-container");
-            if (container.children.length > 1) {
-                button.parentElement.remove();
-                updateLabels();
-            } else {
-                alert("At least one isotopomer is required.");
-            }
-        }
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: var(--bg);
+      padding: 40px 20px;
+      display: flex;
+      justify-content: center;
+    }
 
-        function updateLabels() {
-            const fields = document.querySelectorAll("#input-container div");
-            fields.forEach((div, index) => {
-                div.querySelector("label").textContent = `Isotopomer ${index + 1}:`;
-            });
-        }
-    </script>
+    .container {
+      background-color: var(--white);
+      padding: 30px 40px;
+      border-radius: var(--radius);
+      max-width: 700px;
+      width: 100%;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
+      animation: fadeIn 0.5s ease;
+    }
+
+    .container h2 {
+      margin-bottom: 20px;
+      color: var(--text);
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .container a {
+      display: inline-block;
+      margin-bottom: 20px;
+      text-decoration: none;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .input-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+
+    .input-group div {
+      flex: 1;
+      min-width: 200px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    input[type="text"] {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #dfe6e9;
+      border-radius: var(--radius);
+      background: #f8f9fa;
+      font-size: 14px;
+      transition: border var(--transition);
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--primary);
+      background-color: white;
+      box-shadow: 0 0 0 2px rgba(52, 152, 219, 0.15);
+    }
+
+    .info {
+      margin-bottom: 20px;
+      color: var(--error);
+      font-size: 14px;
+      text-align: center;
+    }
+
+    .info h3 {
+      font-size: 15px;
+      margin: 10px 0 5px;
+      color: var(--text);
+    }
+
+    .info p {
+      font-size: 13px;
+      color: #444;
+    }
+
+    #input-container > div {
+      display: flex;
+      align-items: center;
+      margin-bottom: 10px;
+      gap: 10px;
+    }
+
+    #input-container label {
+      flex: 0 0 120px;
+      margin: 0;
+    }
+
+    #input-container input {
+      flex: 1;
+    }
+
+    button {
+      background: var(--primary);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: var(--radius);
+      cursor: pointer;
+      font-size: 14px;
+      transition: background var(--transition), transform 0.2s ease;
+      margin-top: 10px;
+      margin-right: 10px;
+    }
+
+    button:hover {
+      background: var(--hover);
+      transform: translateY(-1px);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+
+  <script>
+    let fieldCount = 1;
+
+    function addField() {
+      fieldCount++;
+      const container = document.getElementById("input-container");
+      const newField = document.createElement("div");
+      newField.innerHTML = `
+        <label>Isotopomer ${fieldCount}:</label>
+        <input type="text" name="isotopomers[]" required>
+        <button type="button" onclick="removeField(this)">Remove</button>
+      `;
+      container.appendChild(newField);
+      updateLabels();
+    }
+
+    function removeField(button) {
+      const container = document.getElementById("input-container");
+      if (container.children.length > 1) {
+        button.parentElement.remove();
+        updateLabels();
+      } else {
+        alert("At least one isotopomer is required.");
+      }
+    }
+
+    function updateLabels() {
+      const fields = document.querySelectorAll("#input-container div");
+      fields.forEach((div, index) => {
+        div.querySelector("label").textContent = `Isotopomer ${index + 1}:`;
+      });
+    }
+  </script>
 </head>
 <body>
-    <div class="container">
-        <a href="{{ url_for('home') }}">Back to Home</a>
-        <h2>Configuration file generator</h2>
-        
-        <form action="/config" method="post" enctype="multipart/form-data">
-            <div class="label">
-                <span>Ground State File</span>
-                <input type="file" name="ground_state_file" accept=".out,.log">
-            </div>
-            <div class="label">
-                <span>Transition State File</span>
-                <input type="file" name="transition_state_file" accept=".out,.log">
-            </div>
-            
-            <div class="input-group">
-                <div>
-                    <label>Temp. (K)</label>
-                    <input type="text" name="temperature">
-                </div>
-                <div>
-                    <label>Imaginary Threshold</label>
-                    <input type="text" name="imag_threshold" value="50.0">
-                </div>
-            </div>
-            <div class="input-group">
-                <div>
-                    <label>Frequency Scaling Factor</label>
-                    <input type="text" name="scaling" value="1.0">
-                </div>
-            </div>
-            </br>
-            <div id="lable">
-                <h2 style="color: red;">Please enter the isotopomer in the following format: </h2>
-                <h3>isotopomer label, atom number in ground state, atom number in transition state, valid replacement atomic weight</h3>
-                <p>For example: "abc 2 4 C13" (please do not include the quotations) replaces atom 2 in the ground state/reactant and atom 4 in the transition state/product with carbon-13 and labels the resulting KIE abc</p>
-            </div>
-            <div id="input-container">
-                <div>
-                    <label>Isotopomer 1:</label>
-                    <input type="text" name="isotopomers[]" required>
-                    <button type="button" onclick="removeField(this)">Remove</button>
-                </div>
-            </div>
-            <button type="button" onclick="addField()">Add More</button>
-            <button type="submit">Calculate!</button>
-        </form>
-    </div>
+
+  <div class="container">
+    <a href="{{ url_for('home') }}">← Back to Home</a>
+    <h2>Configuration File Generator</h2>
+
+    <form action="/config" method="post" enctype="multipart/form-data">
+      <div class="input-group">
+        <div>
+          <label>Temperature (K)</label>
+          <input type="text" name="temperature">
+        </div>
+        <div>
+          <label>Imaginary Threshold</label>
+          <input type="text" name="imag_threshold" value="50.0">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div>
+          <label>Frequency Scaling Factor</label>
+          <input type="text" name="scaling" value="1.0">
+        </div>
+      </div>
+
+      <div class="info">
+        <h3>Please enter the isotopomer in the following format:</h3>
+        <p><strong>label, ground state atom number, transition state atom number, isotope label</strong></p>
+        <p>Example: <code>abc 2 4 C13</code></p>
+      </div>
+
+      <div id="input-container">
+        <div>
+          <label>Isotopomer 1:</label>
+          <input type="text" name="isotopomers[]" required>
+          <button type="button" onclick="removeField(this)">Remove</button>
+        </div>
+      </div>
+
+      <button type="button" onclick="addField()">Add More</button>
+      <button type="submit">Calculate!</button>
+    </form>
+  </div>
+
 </body>
 </html>
