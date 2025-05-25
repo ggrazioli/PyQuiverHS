@@ -1,68 +1,150 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QuiverHS</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            background-color: #c4dfd6;
-            margin: 0;
-            padding: 0;
-        }
-        .title-bar {
-            background-color: white;
-            padding: 10px;
-            font-size: 20px;
-            font-weight: bold;
-            text-align: center;
-            border-bottom: 2px solid #ccc;
-        }
-        .container {
-            margin-top: 50px;
-        }
-        .buttons {
-            display: flex;
-            justify-content: center;
-            gap: 50px;
-            margin-top: 30px;
-        }
-        .button {
-            background-color: #4d7c7b;
-            color: white;
-            font-size: 18px;
-            text-decoration: none;
-            padding: 50px;
-            width: 200px;
-            text-align: center;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: 0.3s;
-        }
-        .button:hover {
-            background-color: #3b6362;
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuiverHS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined" rel="stylesheet" />
+  <style>
+    :root {
+      --primary: #3498db;
+      --hover: #2980b9;
+      --bg: #f4f6f8;
+      --white: #ffffff;
+      --text: #2c3e50;
+      --radius: 12px;
+      --transition: 0.3s ease;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: var(--bg);
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+
+    .title-bar {
+      background-color: var(--white);
+      padding: 16px;
+      font-size: 22px;
+      font-weight: bold;
+      text-align: center;
+      border-bottom: 1px solid #ddd;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
+    }
+
+    .container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+      animation: fadeIn 0.6s ease;
+    }
+
+    h2 {
+      text-align: center;
+      margin-bottom: 40px;
+      font-size: 26px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 240px);
+      grid-template-rows: repeat(2, 160px);
+      gap: 30px;
+      justify-content: center;
+    }
+
+    .card {
+      background: var(--white);
+      padding: 30px 20px;
+      border-radius: var(--radius);
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      transition: transform var(--transition), box-shadow var(--transition);
+      cursor: pointer;
+      text-decoration: none;
+      color: var(--text);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .icon {
+      font-family: 'Material Symbols Outlined';
+      font-size: 36px;
+      color: var(--primary);
+      display: block;
+      margin-bottom: 12px;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @media (max-width: 500px) {
+      .grid {
+        grid-template-columns: 1fr;
+        grid-template-rows: auto;
+      }
+    }
+  </style>
 </head>
 <body>
 
-    <div class="title-bar">QuiverHS</div>
-    
-    <div class="container">
-        <h2>Welcome to QuiverHS!</h2>
-        <div class="buttons">
-            <a href="{{ url_for('kie') }}" class="button">KIE Calculations</a>
-            <a href="{{ url_for('eie') }}" class="button">EIE Calculations</a>
-            <a href="{{ url_for('config') }}" class="button">Configuration file generator</a>
-            <!-- <div class="button">KIE Calculations</div>
-            <div class="button">EIE Calculations</div> -->
-        </div>
-        <div class="buttons">
-        <a href="{{ url_for('view_molecule') }}" class="button">Molecule Viewer</a>
-        </div>
+  <div class="title-bar">QuiverHS</div>
+
+  <div class="container">
+    <h2>Welcome to QuiverHS!</h2>
+
+    <div class="grid">
+      <a href="{{ url_for('kie') }}" class="card">
+        <span class="icon">calculate</span>
+        <div class="card-title">KIE Calculations</div>
+      </a>
+
+      <a href="{{ url_for('eie') }}" class="card">
+        <span class="icon">functions</span>
+        <div class="card-title">EIE Calculations</div>
+      </a>
+
+      <a href="{{ url_for('config') }}" class="card">
+        <span class="icon">settings</span>
+        <div class="card-title">Configuration File Generator</div>
+      </a>
+
+      <a href="{{ url_for('view_molecule') }}" class="card">
+        <span class="icon">science</span>
+        <div class="card-title">Molecule Viewer</div>
+      </a>
     </div>
+  </div>
 
 </body>
 </html>
