@@ -25,7 +25,7 @@ QuiverHS is an open-source web-based application to calculate Kinetic Isotopic E
 - Automatically generated plots for temperature ranges.
 
 ## TUTORIALS
-To learn how to use this program, please look at the [tutorial](tutorial/TUTORIAL.md)
+To learn how to use this program, please look at the [tutorial](tutorials/TUTORIAL.md)
 
 ## FURTHER READING
 ## AUTHORS
