@@ -466,7 +466,7 @@ if __name__ == "__main__":
     if args.debug:
         settings.DEBUG = args.debug + 1
 
-    from kie_DS import KIE_Calculation
+    from kie import KIE_Calculation
 
     calc = KIE_Calculation(
         args.config, args.gs, args.ts, float(args.temp), args.file, style=args.style

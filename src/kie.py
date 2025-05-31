@@ -3,7 +3,7 @@ import numpy as np
 
 # from quiver import System, Isotopologue, DEBUG
 import pandas as pd
-import quiver_DS as quiver
+import quiver
 import settings
 from file_writer import FileWriter
 from config import Config

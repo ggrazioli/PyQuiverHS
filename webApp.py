@@ -46,8 +46,6 @@ def kie():
         original_cwd = os.getcwd()
         temperature = request.form.get("temperature").split(",")  # added .split(',')
         temp_increment = request.form.get("temp_increment")
-        symmetry_number = request.form.get("symmetry_number")
-        scaling_factor = request.form.get("scaling_factor")
 
         # for case where only one temp is given
         if len(temperature) == 1:
@@ -84,7 +82,7 @@ def kie():
                 app.config["SESSION_FOLDER"], f"output_{start_temp}.txt"
             )
 
-            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_DS.py')} {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path}"
+            command = f"{sys.executable} {os.path.join('src', 'quiver.py')} {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path}"
             os.system(command)
             start_temp += float(temp_increment)
             # os.system('clear')
@@ -226,8 +224,6 @@ def eie():
         original_cwd = os.getcwd()
         temperature = request.form.get("temperature").split(",")
         temp_increment = request.form.get("temp_increment")
-        symmetry_number = request.form.get("symmetry_number")
-        scaling_factor = request.form.get("scaling_factor")
 
         # for case where only one temp is given
         if len(temperature) == 1:
@@ -272,7 +268,7 @@ def eie():
             )
 
             # run the python program
-            command = f"{sys.executable} {os.path.join('PyQuiver', 'src', 'quiver_DS.py')} {config_path} {gaussian_path} {gaussian_path} {start_temp} {output_file_path}"
+            command = f"{sys.executable} {os.path.join('src', 'quiver.py')} {config_path} {gaussian_path} {gaussian_path} {start_temp} {output_file_path}"
             os.system(command)
             start_temp += float(temp_increment)
         # os.system('clear')
@@ -519,13 +515,11 @@ AVAILABLE_TUTORIALS = {
 def serve_tutorial(filename):
     if filename not in AVAILABLE_TUTORIALS:
         abort(403)
-    tutorials_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tutorials'))
-    return send_from_directory(tutorials_path, filename)
+    return send_from_directory("tutorials", filename)
 
 @app.route("/pics/<filename>")
 def serve_pictures(filename):
-    pics_path = os.path.join(os.path.dirname(__file__), '..', 'pics')
-    return send_from_directory(pics_path, filename)
+    return send_from_directory('pics', filename)
 
 if __name__ == '__main__':
     app.run()
