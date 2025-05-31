@@ -18,3 +18,9 @@ After generating the configuration file, along with obtaining the Gaussian files
 4. (optional) set the increment value for temperature range.
 5. Press calculate!
  ![KIE PAGE](../pics/kie.png)
+
+Once done, you will recieve a zip file that includes a text file for each temperature in the temperature range, a csv file that includes all of the calculations, and a plot for the temperature range. Below is a an example of the calculation done using the provided gaussian files, and already generated configuration file for temperature range of 273.15K to 298.15K, with increments of 1K.
+![KIE EXAMPLE FOLDER](../pics/kie_output_folder.png)
+![KIE EXAMPLE CSV](../pics/kie_output.png)
+![KIE PLOT](../pics/plot.png)
+
