@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, send_file
+from flask import Flask, render_template, request, send_file, send_from_directory, abort
 import datetime
 import os
 import time
@@ -501,6 +501,31 @@ def view_molecule():
 def paper():
     if request.method == "GET":
         return send_file("paper.pdf", mimetype='application/pdf', as_attachment=True, download_name='technical_paper.pdf')
+
+@app.route("/tutorials", methods=['GET'])
+def tutorials():
+    if request.method == 'GET':
+        return render_template("tutorials.html")
+
+AVAILABLE_TUTORIALS = {
+    'TUTORIAL.md',
+    'CONFIG.md',
+    # 'EIE.md',
+    'KIE.md',
+    'MOLECULE.md'
+}
+
+@app.route("/tutorials/<filename>")
+def serve_tutorial(filename):
+    if filename not in AVAILABLE_TUTORIALS:
+        abort(403)
+    tutorials_path = os.path.abspath(os.path.join(os.path.dirname(__file__), '..', 'tutorials'))
+    return send_from_directory(tutorials_path, filename)
+
+@app.route("/pics/<filename>")
+def serve_pictures(filename):
+    pics_path = os.path.join(os.path.dirname(__file__), '..', 'pics')
+    return send_from_directory(pics_path, filename)
 
 if __name__ == '__main__':
     app.run()
