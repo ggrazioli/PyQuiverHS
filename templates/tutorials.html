@@ -179,11 +179,17 @@
       <button onclick="loadTutorial('{{ url_for("serve_tutorial", filename="KIE.md") }}')">
         <span class="material-symbols-outlined">calculate</span> Kinetic Isotope Effects
       </button>
+      <button onclick="loadTutorial('{{ url_for("serve_tutorial", filename="EIE.md") }}')">
+        <span class="material-symbols-outlined">functions</span> Equilibrium Isotope Effects
+      </button>
       <button onclick="loadTutorial('{{ url_for("serve_tutorial", filename="CONFIG.md") }}')">
         <span class="material-symbols-outlined">settings</span> Configuration File Generation
       </button>
       <button onclick="loadTutorial('{{ url_for("serve_tutorial", filename="MOLECULE.md") }}')">
         <span class="material-symbols-outlined">science</span> Molecule Viewer
+      </button>
+      <button onclick="downloadTutorial()">
+        <span class="material-symbols-outlined">download</span> Download tutorial files.
       </button>
     </div>
 
@@ -213,6 +219,14 @@
             <p>Error loading content: ${error.message}</p>
           `;
         });
+    }
+    function downloadTutorial() {
+      const link = document.createElement('a');
+      link.href = '/tutorials/download';
+      link.download = 'tutorial_files.zip'; // Optional – works better if the server sets headers
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     }
   </script>
 
