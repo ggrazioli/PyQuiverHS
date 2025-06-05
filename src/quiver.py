@@ -1,3 +1,7 @@
+# This file has been modified from the original PyQuiver project
+# by Thayer L. Anderson and Eugene E. Kwan (https://github.com/ekwan/PyQuiver).
+# Licensed under the Apache License, Version 2.0.
+
 import argparse
 import sys
 import re

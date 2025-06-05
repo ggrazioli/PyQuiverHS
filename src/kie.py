@@ -1,3 +1,8 @@
+# This file has been modified from the original PyQuiver project
+# by Thayer L. Anderson and Eugene E. Kwan (https://github.com/ekwan/PyQuiver).
+# Licensed under the Apache License, Version 2.0.
+
+
 # This calculates KIEs based on the Bigeleisen-Mayer equation.
 import numpy as np
 
@@ -5,7 +10,6 @@ import numpy as np
 import pandas as pd
 import quiver
 import settings
-from file_writer import FileWriter
 from config import Config
 from constants import DEFAULT_MASSES
 from collections import OrderedDict
@@ -347,11 +351,6 @@ class KIE(object):
             print("Calculating KIE for isotopologue {0}.".format(name))
         self.value = self.calculate_kie()
 
-        ## AL addition:
-        # self.components = self.calculate_kie_components()
-        # TODO this may cause double calculations.
-        # self.kie_components = self.calculate_kie_components()
-
     def calculate_kie(self):
         uncorrected_kie = 0
         wigner_kie = 0
@@ -580,9 +579,7 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature):
 
         H_ZPE_h = vibrational_temp(wavenumber_heavy) / 2
         H_ZPE_l = vibrational_temp(wavenumber_light) / 2
-        H_vib_h = vibrational_temp(wavenumber_heavy) / (
-            np.exp(u_heavy) - 1
-        )  ## AL: check units here?
+        H_vib_h = vibrational_temp(wavenumber_heavy) / (np.exp(u_heavy) - 1)
         H_vib_l = vibrational_temp(wavenumber_light) / (np.exp(u_light) - 1)
 
         S_vib_h = rCal * (
@@ -664,12 +661,10 @@ def get_I_data(atomDF):
     center_of_mass = np.zeros(3)
     mass_tot = 0
     for index, row in atomDF.iterrows():
-        # center_of_mass = center_of_mass + row['mass']*np.array(row[3:6])      ## AL: removing 'atom' shifts this
         center_of_mass = center_of_mass + row["mass"] * np.array(row[2:5])
         mass_tot = mass_tot + row["mass"]
     center_of_mass = 1 / mass_tot * center_of_mass
     centeredXYZ = atomDF[["x", "y", "z"]].sub(center_of_mass, axis=1)
-    # atomDF_centered = pd.concat([atomDF[['atom','atom_num','mass']], centeredXYZ], axis=1)        ## AL: 'atom' does not convey any useful information; it would be more convenient to leave it out here since there is no output
     atomDF_centered = pd.concat([atomDF[["atom_num", "mass"]], centeredXYZ], axis=1)
     Ixx, Iyy, Izz, Ixy, Ixz, Iyz = 0, 0, 0, 0, 0, 0
     for index, row in atomDF_centered.iterrows():
@@ -776,16 +771,16 @@ def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
 
     partition_factors, enth_factors, entr_factors = partition_components_frequency(
         self, heavy_freqs, light_freqs, temperature
-    )  ## AL: MUST ADD IN ROTATIONAL ENTROPY TERMS; tuple contains isotopologue objects
+    )  # MUST ADD IN ROTATIONAL ENTROPY TERMS; tuple contains isotopologue objects
 
-    ## AL: tup is a tuple of a form (light_isotopologue, heavy_isotopologue)
+    # tup is a tuple of a form (light_isotopologue, heavy_isotopologue)
     atomDF_light = create_atomDF(tup[0])
     atomDF_heavy = create_atomDF(tup[1])
 
-    ## AL: rot_entr_factor is a scalar, while entr_factors in general currently contains components of S_vib -- we need to sum them first to get a total S_vib, THEN add S_rot
+    # rot_entr_factor is a scalar, while entr_factors in general currently contains components of S_vib -- we need to sum them first to get a total S_vib, THEN add S_rot
     rot_entr_factor = partition_components_rotational(
         atomDF_heavy, atomDF_light, temperature, symmetry_factor=1
-    )  ## AL: return to this, add way to change symmetry factor from default please
+    )  #: return to this, add way to change symmetry factor from default please
 
     if settings.DEBUG >= 2:
         factors = np.prod(partition_factors, axis=0)

@@ -1,3 +1,7 @@
+# This file has been duplicated from the original PyQuiver project
+# by Thayer L. Anderson and Eugene E. Kwan (https://github.com/ekwan/PyQuiver).
+# Licensed under the Apache License, Version 2.0.
+
 # This file reads PyQuiver configuration files. 
 import sys
 import re
@@ -12,16 +16,6 @@ class Config(object):
         config = { i : None for i in expected_fields }
         config["filename"] = filename
 
-        # DS: can't this be precise
-        '''
-        config = {"filename" : filename,
-                  "scaling" : None,
-                  "temperature" : None,
-                  "mass_override_isotopologue" : None,
-                  "reference_isotopologue": None,
-                  "imag_threshold" : None,
-                  "frequency_threshold" : None}
-        '''
         print_message = True
         try:
             f=list(sys._current_frames().values())[0]
