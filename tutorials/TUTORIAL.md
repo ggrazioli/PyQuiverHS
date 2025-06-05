@@ -9,7 +9,7 @@ To set up this program locally:
 6. Launch a browser tab and open the address shown on the terminal (usually [http://127.0.0.1:5000](http://127.0.0.1:5000))
 7. If everything is done correctly, you should see the main menu ![Main Page](../pics/main_menu.png)
 ## FURTHER SECTIONS
-**Please click on each module for futher instructions**
+**Please click on each module for futher instructions** (note: does not work in the in-app version, please use the side buttons.)
 - [KIE Calculations](KIE.md)
 - [EIE Calculations](EIE.md)
 - [Configuration File Generator](CONFIG.md)
