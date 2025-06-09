@@ -143,7 +143,7 @@ def kie():
             "S_ROT",
             "Approx. MMI",
             "EXC",
-            "ZPE",
+            "ZPE"
         ]
         df = pd.DataFrame(columns=column_names)
 
@@ -170,7 +170,7 @@ def kie():
                         map(float, line_components[2:17])
                     )  # temporary? this contains enthalpy and entropy
                     kie_values = list(
-                        map(float, line_components[2:5])
+                        map(float, line_components[2:8])
                     )  # this does NOT contain enthalpy and entropy
 
                     if isotopologue_name not in kie_data:
@@ -197,7 +197,7 @@ def kie():
             plt.ylabel("KIE Value")
             plt.title(f"KIE Plot for {isotopologue_name}")
 
-            kie_labels = ["Uncorrected KIE", "Wigner KIE", "Bell KIE"]
+            kie_labels = ["Uncorrected (TH) KIE", "Uncorrected (BM) KIE", "Wigner (TH) KIE", "Wigner (BM) KIE", "Bell (TH) KIE", "Bell (BM) KIE"]
 
             for i, kie_label in enumerate(kie_labels):
                 plt.plot(
@@ -324,7 +324,7 @@ def eie():
             "S_ROT",
             "Approx. MMI",
             "EXC",
-            "ZPE",
+            "ZPE"
         ]
         df = pd.DataFrame(columns=column_names)
 
