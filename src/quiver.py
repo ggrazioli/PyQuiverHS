@@ -14,7 +14,7 @@ import base64
 import numpy as np
 
 import settings
-from utility import proj, normalize, test_orthogonality, schmidt
+# from utility import proj, normalize, test_orthogonality, schmidt
 from constants import (
     DEFAULT_MASSES,
     PHYSICAL_CONSTANTS,
