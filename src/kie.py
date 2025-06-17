@@ -562,7 +562,7 @@ def vibrational_temp(wavenumber):
 # uses the Teller-Redlich product rule
 # returns 1 x n array of the partition function ratios, where n is the number of frequencies
 # frequencies below frequency_threshold will be ignored and will not be included in the array
-def partition_components_frequency(self, freqs_heavy, freqs_light, temperature):
+def partition_components_frequency(self, freqs_heavy, freqs_light, temperature, atomDF_heavy, atomDF_light, symmetry_factor=1):
     components = []
     enth_components = []
     entr_components = []
@@ -591,15 +591,31 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature):
 
         components.append([product_factor, excitation_factor, ZPE_factor])
         enth_components.append([H_ZPE_h - H_ZPE_l, H_vib_h - H_vib_l])
-        # entr_components.append([S_vib_h-S_vib_l, S_rot_h-S_rot_l])
         entr_components.append([S_vib_h - S_vib_l])
+
+
+    ### NEW SECTION
+
+    q_r_h = q_r(atomDF_heavy, temperature, symmetry_factor)
+    q_r_l = q_r(atomDF_light, temperature, symmetry_factor)
+
+    S_rot_h = rCal * (np.log(q_r_h) + 3 / 2)
+    S_rot_l = rCal * (np.log(q_r_l) + 3 / 2)
+
+    enth_components = np.sum(enth_components, axis=0)
+    entr_components = np.sum(entr_components, axis=0)
+    entr_components = np.append(entr_components, S_rot_h - S_rot_l)
+
+
+    ### NEW SECTION
+
 
         # print(
         #     "MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    S_vib_h: %9.5f  S_vib_l: %9.5f"
         #     % (i, wavenumber_light, wavenumber_heavy, S_vib_h, S_vib_l)
         # )
-        if settings.DEBUG >= 1:
-            overall_factor = product_factor * excitation_factor * ZPE_factor
+        # if settings.DEBUG >= 1:
+        #     overall_factor = product_factor * excitation_factor * ZPE_factor
             # print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    FRQ RATIO: %9.5f    ZPE FACTOR: %9.5f    CONTRB TO RIPF: %9.5f" % (i, wavenumber_light, wavenumber_heavy, product_factor, ZPE_factor, overall_factor))
             # print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    H_ZPE_h: %9.5f   H_ZPE_l: %9.5f H_vib_h: %9.5f H_vib_l: %9.5f " % (i, wavenumber_light, wavenumber_heavy, H_ZPE_h, H_ZPE_l, H_vib_h, H_vib_l))
             # print("MODE %3d    LIGHT: %9.3f cm-1    HEAVY: %9.3f cm-1    S_vib_h: %9.5f  S_vib_l: %9.5f" % (i, wavenumber_light, wavenumber_heavy, S_vib_h, S_vib_l))
@@ -769,18 +785,18 @@ def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
         )
         imag_ratios = np.array([raw_imag_ratio, wigner_imag_ratio, bell_imag_ratio])
 
-    partition_factors, enth_factors, entr_factors = partition_components_frequency(
-        self, heavy_freqs, light_freqs, temperature
-    )  # MUST ADD IN ROTATIONAL ENTROPY TERMS; tuple contains isotopologue objects
-
     # tup is a tuple of a form (light_isotopologue, heavy_isotopologue)
     atomDF_light = create_atomDF(tup[0])
     atomDF_heavy = create_atomDF(tup[1])
 
+    partition_factors, enth_factors, entr_factors = partition_components_frequency(
+        self, heavy_freqs, light_freqs, temperature, atomDF_heavy, atomDF_light
+    )  # MUST ADD IN ROTATIONAL ENTROPY TERMS; tuple contains isotopologue objects
+
     # rot_entr_factor is a scalar, while entr_factors in general currently contains components of S_vib -- we need to sum them first to get a total S_vib, THEN add S_rot
-    rot_entr_factor = partition_components_rotational(
-        atomDF_heavy, atomDF_light, temperature, symmetry_factor=1
-    )  #: return to this, add way to change symmetry factor from default please
+    # rot_entr_factor = partition_components_rotational(
+    #     atomDF_heavy, atomDF_light, temperature, symmetry_factor=1
+    # )  #: return to this, add way to change symmetry factor from default please
 
     if settings.DEBUG >= 2:
         factors = np.prod(partition_factors, axis=0)
@@ -790,9 +806,12 @@ def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
             )
         )
 
-    enth_output = np.sum(enth_factors, axis=0)
-    entr_output = np.sum(entr_factors, axis=0)
-    entr_output = np.append(entr_output, rot_entr_factor)
+    enth_output = np.array(enth_factors)
+    entr_output = np.array(entr_factors)
+
+    # enth_output = np.sum(enth_factors, axis=0)
+    # entr_output = np.sum(entr_factors, axis=0)
+    # entr_output = np.append(entr_output, rot_entr_factor)
 
     return (
         enth_output,
