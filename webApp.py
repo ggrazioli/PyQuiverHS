@@ -420,9 +420,10 @@ def config():
     elif request.method == "POST":
         original_cwd = os.getcwd()
 
-        temperature = request.form.get("temperature")
+        # temperature = request.form.get("temperature")
         imag_threshold = request.form.get("imag_threshold")
         scaling = request.form.get("scaling")
+        reference_iso = request.form.get("reference_iso")
 
         isotopomers = request.form.getlist("isotopomers[]")
         # Ensure at least one isotopomer is recieved
@@ -454,7 +455,8 @@ def config():
 
         # temperature
         f.write("# temperature in K\n")
-        f.write(f"temperature {temperature}\n\n")
+        # f.write(f"temperature {temperature}\n\n")
+        f.write(f"temperature 298\n\n")
 
         # TODO Implement this
         # light isotopomer mass replacement
@@ -464,7 +466,7 @@ def config():
         # TODO Implement this
         # reference isotopomer
         f.write("#all KIEs will be divided by the KIE at this position\n")
-        f.write(f"reference_isotopomer {'none'}\n\n")
+        f.write(f"reference_isotopomer {reference_iso}\n\n")
 
         f.write("# define the isotopomers\n")
         for isotopomer in isotopomers:
