@@ -199,13 +199,13 @@
 
     <form action="/config" method="post" enctype="multipart/form-data">
       <div class="input-group">
-        <div>
+         <!-- <div>
           <label>Temperature (K)</label>
-          <input type="text" name="temperature">
-        </div>
+          <input type="text" name="temperature" value="298.0">
+        </div> -->
         <div>
           <label>Imaginary Threshold</label>
-          <input type="text" name="imag_threshold" value="50.0">
+          <input type="text" name="imag_threshold" value="0.0">
         </div>
       </div>
 
@@ -213,6 +213,13 @@
         <div>
           <label>Frequency Scaling Factor</label>
           <input type="text" name="scaling" value="1.0">
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div>
+          <label>Reference Isotopologue</label>
+          <input type="text" name="reference_iso" value="none">
         </div>
       </div>
 
