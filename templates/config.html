@@ -68,6 +68,13 @@
       min-width: 200px;
     }
 
+    small {
+      color: var(--error);
+      font-size: 12px;
+      margin-top: 4px;
+      transition: opacity var(--transition);
+    }
+
     label {
       display: block;
       margin-bottom: 6px;
@@ -205,7 +212,8 @@
         </div> -->
         <div>
           <label>Imaginary Threshold</label>
-          <input type="text" name="imag_threshold" value="0.0">
+          <input type="text" name="imag_threshold" value="50.0">
+          <small>Please enter a positive number for the imaginary threshold (consult transition state files, as needed); ex. a threshold of 50 cm<sup>-1</sup> will be treated as -50 cm<sup>-1</sup> in the code.</small>
         </div>
       </div>
 
