@@ -4,15 +4,15 @@ In this tutorial, we will generate the configuration file used in the KIE tutori
 2. Select an imaginary threshold. If left unchanged, the program will automatically choose 50 as its default value. For KIE calculations, it is important that you consult the transition state's Gaussian file to choose an appropriate imaginary threshold (Ctrl + F for "imaginary"). Select an imaginary threshold such that the lowest negative frequency is the only allowed imaginary value.
 3. Select a scaling factor for the frequencies. If left unchanged, the program will automatically choose 1 as its default value.
 4. Choose the isotopic desired isotopic exchanges, separate each section with a single space:
-    a. Select a label; the label can be any name. If two or more isotopic exchanges are desired, ensure that both isotopomers share the same label (third picture).
-    b. Select the ground state/reactant atom number; the molecular viewer provides both a 3D representation and the atom numbers.
-    c. Select the transition state/product atom number.
-    d. Select the Isotope to be replaced; choose from the list provided.
+- Select a label; the label can be any name. If two or more isotopic exchanges are desired, ensure that both isotopomers share the same label (third picture).
+- Select the ground state/reactant atom number; the molecular viewer provides both a 3D representation and the atom numbers.
+- Select the transition state/product atom number.
+- Select the Isotope to be replaced; choose from the list provided.
 5. Press "Calculate!"
 ![CONFIG PAGE](../pics/config.png)
 If done correctly, your output will resemble the following: ![SAMPLE CONFIG](../pics/config_example.png)
 
-For the case of mutiple isotopic substituion, indicate all isotopomers with the same label as follows:
+For the case of mutiple isotopic substitution, indicate all isotopomers with the same label as follows:
 ![MULTI SUBSTITUTION](../pics/multiconfig.png)
 
 ## Possible replacements
