@@ -1,7 +1,7 @@
 # CONFIGURATION FILE GENERATOR
 In this tutorial, we will generate the configuration file used in the KIE tutorial.
 1. Select the desired temperature. Note that the temperature indicated during the EIE or KIE calculation _will_ replace this temperature.
-2. Select an imaginary threshold. If left unchanged, the program will automatically choose 50 as its default value. For KIE calculations, it is important that you consult the transition state's Gaussian file to choose an appropriate imaginary threshold. Select an imaginary threshold such that the lowest negative frequency is the only allowed imaginary value.
+2. Select an imaginary threshold. If left unchanged, the program will automatically choose 50 as its default value. For KIE calculations, it is important that you consult the transition state's Gaussian file to choose an appropriate imaginary threshold (Ctrl + F for "imaginary"). Select an imaginary threshold such that the lowest negative frequency is the only allowed imaginary value.
 3. Select a scaling factor for the frequencies. If left unchanged, the program will automatically choose 1 as its default value.
 4. Choose the isotopic desired isotopic exchanges, separate each section with a single space:
     a. Select a label; the label can be any name. If two or more isotopic exchanges are desired, ensure that both isotopomers share the same label (third picture).
