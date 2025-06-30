@@ -489,12 +489,11 @@ class KIE(object):
         else:
             self.eie_flag = 1
 
-        # AL: swapped ZPE and EXC order to reflect Dr. O'Leary's output file
-        ZPE_factor = np.prod(partition_factors_gs[:, 2]) / np.prod(
-            partition_factors_ts[:, 2]
-        )
         EXC_factor = np.prod(partition_factors_gs[:, 1]) / np.prod(
             partition_factors_ts[:, 1]
+        )
+        ZPE_factor = np.prod(partition_factors_gs[:, 2]) / np.prod(
+            partition_factors_ts[:, 2]
         )
 
         final_enth_sum = enth_ts_sums - enth_gs_sums
@@ -507,6 +506,7 @@ class KIE(object):
         final_entr_rot = np.exp(final_entr_sum[1] / rCal)
         final_entr = final_entr_vib * final_entr_rot
 
+        # change DEBUG setting in settings.py to 1 or higher
         if settings.DEBUG >= 1:
             print("***************HERE***************")
             print("MMI:", MMI_factor)
@@ -668,8 +668,6 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature, 
         entr_components.append([S_vib_h - S_vib_l])
 
 
-    ### NEW SECTION
-
     q_r_h = q_r(atomDF_heavy, temperature, symmetry_factor)
     q_r_l = q_r(atomDF_light, temperature, symmetry_factor)
 
@@ -679,9 +677,6 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature, 
     enth_components = np.sum(enth_components, axis=0)
     entr_components = np.sum(entr_components, axis=0)
     entr_components = np.append(entr_components, S_rot_h - S_rot_l)
-
-
-    ### NEW SECTION
 
 
         # print(
@@ -865,12 +860,7 @@ def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
 
     partition_factors, enth_factors, entr_factors = partition_components_frequency(
         self, heavy_freqs, light_freqs, temperature, atomDF_heavy, atomDF_light
-    )  # MUST ADD IN ROTATIONAL ENTROPY TERMS; tuple contains isotopologue objects
-
-    # rot_entr_factor is a scalar, while entr_factors in general currently contains components of S_vib -- we need to sum them first to get a total S_vib, THEN add S_rot
-    # rot_entr_factor = partition_components_rotational(
-    #     atomDF_heavy, atomDF_light, temperature, symmetry_factor=1
-    # )  #: return to this, add way to change symmetry factor from default please
+    )  
 
     if settings.DEBUG >= 2:
         factors = np.prod(partition_factors, axis=0)
