@@ -138,7 +138,7 @@ class KIE_Calculation(object):
         for key in self.KIES:
             keys.append(key)
 
-        # don't report the reference isotoplogue
+        # don't report the reference isotopologue
         if (
             self.config.reference_isotopologue != "default"
             and self.config.reference_isotopologue != "none"
@@ -261,41 +261,75 @@ class KIE_Calculation(object):
         if self.eie_flag == 0:
             # string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell\n"
             # string += "Isotopologue        Name                                  Uncorrected      Wigner           Bell        Enthalpy        Entropy        H_ZPE        H_vib        S_vib        S_rot\n"
+            # string += "Isotopologue {1: ^10s} {0: ^12s} {2: ^16s} {3: ^16s} {4: ^14s} {5: ^14s} {6: ^14s} {7: ^14s} {8: ^14s} {9: ^14s} {10: ^14s} {11: ^14s} {12: ^14s} {13: ^14s} {14: ^14s} {15: ^14s} {16: ^14s}".format(
+            #     "",
+            #     "Name",
+            #     "Uncorrected(TH)",
+            #     "Uncorrected(BM)",
+            #     "Wigner(TH)",
+            #     "Wigner(BM)",
+            #     "Bell(TH)",
+            #     "Bell(BM)",
+            #     "Enthalpy",
+            #     "Entropy",
+            #     "H_ZPE",
+            #     "H_VIB",
+            #     "S_VIB",
+            #     "S_ROT",
+            #     "MMI",
+            #     "EXC",
+            #     "ZPE\n",
+            # )
+            # string += "                                     KIE               KIE             KIE             KIE           KIE           KIE"
             string += "Isotopologue {1: ^10s} {0: ^12s} {2: ^16s} {3: ^16s} {4: ^14s} {5: ^14s} {6: ^14s} {7: ^14s} {8: ^14s} {9: ^14s} {10: ^14s} {11: ^14s} {12: ^14s} {13: ^14s} {14: ^14s} {15: ^14s} {16: ^14s}".format(
                 "",
                 "Name",
-                "Uncorrected(TH)",
-                "Uncorrected(BM)",
-                "Wigner(TH)",
-                "Wigner(BM)",
-                "Bell(TH)",
-                "Bell(BM)",
-                "Enthalpy",
-                "Entropy",
-                "H_ZPE",
-                "H_VIB",
-                "S_VIB",
-                "S_ROT",
-                "Approx. MMI",
-                "EXC",
-                "ZPE\n",
+                "BM MMI",
+                "BM ZPE",
+                "BM EXC",
+                "BM (total)",
+                "HS H_ZPE",
+                "HS H_VIB",
+                "HS H_TOT",
+                "HS S_VIB",
+                "HS S_ROT",
+                "HS S_TOT",
+                "HS (total)",
+                "BM (total-Wigner)",
+                "HS (total-Wigner)",
+                "BM (total-Bell)",
+                "HS (total-Bell)\n"
             )
-            string += "                                     KIE               KIE             KIE             KIE           KIE           KIE"
         else:
+            # string += "Isotopologue {1: ^10s} {0: ^12s} {2: ^16s} {3: ^16s} {4: ^14s} {5: ^14s} {6: ^14s} {7: ^14s} {8: ^14s} {9: ^14s} {10: ^14s} {11: ^14s} {12: ^14s}".format(
+            #     "",
+            #     "Name",
+            #     "EIE(TH)",
+            #     "EIE(BM)",
+            #     "Enthalpy",
+            #     "Entropy",
+            #     "H_ZPE",
+            #     "H_VIB",
+            #     "S_VIB",
+            #     "S_ROT",
+            #     "MMI",
+            #     "EXC",
+            #     "ZPE\n",
+            # )
             string += "Isotopologue {1: ^10s} {0: ^12s} {2: ^16s} {3: ^16s} {4: ^14s} {5: ^14s} {6: ^14s} {7: ^14s} {8: ^14s} {9: ^14s} {10: ^14s} {11: ^14s} {12: ^14s}".format(
                 "",
                 "Name",
-                "EIE(TH)",
-                "EIE(BM)",
-                "Enthalpy",
-                "Entropy",
-                "H_ZPE",
-                "H_VIB",
-                "S_VIB",
-                "S_ROT",
-                "Approx. MMI",
-                "EXC",
-                "ZPE\n",
+                "BM MMI",
+                "BM ZPE",
+                "BM EXC",
+                "BM (total)",
+                "HS H_ZPE",
+                "HS H_VIB",
+                "HS H_TOT",
+                "HS S_VIB",
+                "HS S_ROT",
+                "HS S_TOT",
+                "HS (total)\n",
             )
         keys = list(self.KIES.keys())
         if (
@@ -352,9 +386,9 @@ class KIE(object):
         self.value = self.calculate_kie()
 
     def calculate_kie(self):
-        uncorrected_kie = 0
-        wigner_kie = 0
-        bell_kie = 0
+        HS_uncorrected_kie = 0
+        HS_wigner_kie = 0
+        HS_bell_kie = 0
         BM_uncorrected_kie = 0
         BM_wigner_kie = 0
         BM_bell_kie = 0
@@ -372,21 +406,23 @@ class KIE(object):
         )
 
         # Thermodynamic method
-        uncorrected_kie = self.kie_components[0] * self.kie_components[1]
+        # kie_components[5] is the total enthalpy contribution
+        # kie_components[8] is the total entropy contribution
+        HS_uncorrected_kie = self.kie_components[5] * self.kie_components[8]
         if self.eie_flag == 0:
-            wigner_kie = uncorrected_kie * wigner(
+            HS_wigner_kie = HS_uncorrected_kie * wigner(
                 heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
             )
-            bell_kie = uncorrected_kie * bell(
+            HS_bell_kie = HS_uncorrected_kie * bell(
                 heavy_imag_freqs[0], light_imag_freqs[0], self.temperature
             )
 
         # BM method
-        # kie_components[6] is the aproximate MMI Factor.
-        # kie_components[7] is the Exciation Factor.
-        # kie_components[8] is the ZPE Factor.
+        # kie_components[0] is the MMI Factor.
+        # kie_components[1] is the ZPE Factor.
+        # kie_components[2] is the Excitation Factor.
         BM_uncorrected_kie = (
-            self.kie_components[6] * self.kie_components[7] * self.kie_components[8]
+            self.kie_components[0] * self.kie_components[1] * self.kie_components[2]
         )
         if self.eie_flag == 0:
             BM_wigner_kie = BM_uncorrected_kie * wigner(
@@ -398,12 +434,12 @@ class KIE(object):
 
         kie_values = np.array(
             [
-                uncorrected_kie,
-                wigner_kie,
-                bell_kie,
                 BM_uncorrected_kie,
+                HS_uncorrected_kie,
                 BM_wigner_kie,
+                HS_wigner_kie,
                 BM_bell_kie,
+                HS_bell_kie,
             ]
         )
 
@@ -452,11 +488,13 @@ class KIE(object):
             MMI_factor *= ts_imag_ratios[0]
         else:
             self.eie_flag = 1
-        EXC_factor = np.prod(partition_factors_gs[:, 1]) / np.prod(
-            partition_factors_ts[:, 1]
-        )
+
+        # AL: swapped ZPE and EXC order to reflect Dr. O'Leary's output file
         ZPE_factor = np.prod(partition_factors_gs[:, 2]) / np.prod(
             partition_factors_ts[:, 2]
+        )
+        EXC_factor = np.prod(partition_factors_gs[:, 1]) / np.prod(
+            partition_factors_ts[:, 1]
         )
 
         final_enth_sum = enth_ts_sums - enth_gs_sums
@@ -472,24 +510,26 @@ class KIE(object):
         if settings.DEBUG >= 1:
             print("***************HERE***************")
             print("MMI:", MMI_factor)
-            print("EXC:", EXC_factor)
             print("ZPE:", ZPE_factor)
+            print("EXC:", EXC_factor)
             print("H_ZPE:", final_enth_zpe)
-            print("H_vib:", final_enth_vib)
-            print("S_Vib:", final_entr_vib)
+            print("H_VIB:", final_enth_vib)
+            print("enthalpy:", final_enth)
+            print("S_VIB:", final_entr_vib)
             print("S_ROT:", final_entr_rot)
+            print("entropy:", final_entr)
             print("***************HERE***************")
 
         return (
-            final_enth,
-            final_entr,
+            MMI_factor,
+            ZPE_factor,
+            EXC_factor,
             final_enth_zpe,
             final_enth_vib,
+            final_enth,
             final_entr_vib,
             final_entr_rot,
-            MMI_factor,
-            EXC_factor,
-            ZPE_factor,
+            final_entr
         )
 
     def apply_reference(self, reference_kie):
@@ -502,37 +542,71 @@ class KIE(object):
     def __str__(self):
         if self.value is not None:
             if self.eie_flag == 1:
+                # return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {3: ^14.8f} {4: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f}".format(
+                #     "",
+                #     self.name,
+                #     self.value[0],
+                #     self.value[3],
+                #     self.kie_components[0],
+                #     self.kie_components[1],
+                #     self.kie_components[2],
+                #     self.kie_components[3],
+                #     self.kie_components[4],
+                #     self.kie_components[5],
+                #     self.kie_components[6],
+                #     self.kie_components[7],
+                #     self.kie_components[8],
+                # )
                 return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {3: ^14.8f} {4: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f}".format(
                     "",
                     self.name,
-                    self.value[0],
-                    self.value[3],
                     self.kie_components[0],
                     self.kie_components[1],
                     self.kie_components[2],
+                    self.value[0],
                     self.kie_components[3],
                     self.kie_components[4],
                     self.kie_components[5],
                     self.kie_components[6],
                     self.kie_components[7],
                     self.kie_components[8],
+                    self.value[1]
                 )
             else:
-                return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {14: ^16.8f} {3: ^14.8f} {15: ^14.8f} {4: ^14.8f} {16: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f} {13: ^14.8f}".format(
+                # return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {14: ^16.8f} {3: ^14.8f} {15: ^14.8f} {4: ^14.8f} {16: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f} {13: ^14.8f}".format(
+                #     "",
+                #     self.name,
+                #     self.value[0],
+                #     self.value[1],
+                #     self.value[2],
+                #     self.kie_components[0],
+                #     self.kie_components[1],
+                #     self.kie_components[2],
+                #     self.kie_components[3],
+                #     self.kie_components[4],
+                #     self.kie_components[5],
+                #     self.kie_components[6],
+                #     self.kie_components[7],
+                #     self.kie_components[8],
+                #     self.value[3],
+                #     self.value[4],
+                #     self.value[5],
+                # )
+                return "Isotopologue {1: ^10s} {0: ^12s} {2: ^16.8f} {3: ^16.8f} {4: ^14.8f} {5: ^14.8f} {6: ^14.8f} {7: ^14.8f} {8: ^14.8f} {9: ^14.8f} {10: ^14.8f} {11: ^14.8f} {12: ^14.8f} {13: ^14.8f} {14: ^14.8f} {15: ^14.8f} {16: ^14.8f}".format(
                     "",
                     self.name,
-                    self.value[0],
-                    self.value[1],
-                    self.value[2],
                     self.kie_components[0],
                     self.kie_components[1],
                     self.kie_components[2],
+                    self.value[0],
                     self.kie_components[3],
                     self.kie_components[4],
                     self.kie_components[5],
                     self.kie_components[6],
                     self.kie_components[7],
                     self.kie_components[8],
+                    self.value[1],
+                    self.value[2],
                     self.value[3],
                     self.value[4],
                     self.value[5],
@@ -627,16 +701,16 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature, 
     return np.array(components), np.array(enth_components), np.array(entr_components)
 
 
-def partition_components_rotational(
-    atomDF_heavy, atomDF_light, temperature, symmetry_factor=1
-):
-    q_r_h = q_r(atomDF_heavy, temperature, symmetry_factor)
-    q_r_l = q_r(atomDF_light, temperature, symmetry_factor)
+# def partition_components_rotational(
+#     atomDF_heavy, atomDF_light, temperature, symmetry_factor=1
+# ):
+#     q_r_h = q_r(atomDF_heavy, temperature, symmetry_factor)
+#     q_r_l = q_r(atomDF_light, temperature, symmetry_factor)
 
-    S_rot_h = rCal * (np.log(q_r_h) + 3 / 2)
-    S_rot_l = rCal * (np.log(q_r_l) + 3 / 2)
+#     S_rot_h = rCal * (np.log(q_r_h) + 3 / 2)
+#     S_rot_l = rCal * (np.log(q_r_l) + 3 / 2)
 
-    return S_rot_h - S_rot_l
+#     return S_rot_h - S_rot_l
 
 
 # def rot_temps_swapped():
