@@ -126,25 +126,45 @@ def kie():
         # -- process .txt files and prepare dataframe
         kie_data = {}
 
+        # column_names = [
+        #     "Isotopologue",
+        #     "Temperature",
+        #     "Uncorrected (TH) KIE",
+        #     "Uncorrected (BM) KIE",
+        #     "Wigner (TH) KIE",
+        #     "Wigner (BM) KIE",
+        #     "Bell (TH) KIE",
+        #     "Bell (BM) KIE",
+        #     "Enthalpy",
+        #     "Entropy",
+        #     "H_ZPE",
+        #     "H_VIB",
+        #     "S_VIB",
+        #     "S_ROT",
+        #     "MMI",
+        #     "EXC",
+        #     "ZPE"
+        # ]
         column_names = [
             "Isotopologue",
             "Temperature",
-            "Uncorrected (TH) KIE",
-            "Uncorrected (BM) KIE",
-            "Wigner (TH) KIE",
-            "Wigner (BM) KIE",
-            "Bell (TH) KIE",
-            "Bell (BM) KIE",
-            "Enthalpy",
-            "Entropy",
-            "H_ZPE",
-            "H_VIB",
-            "S_VIB",
-            "S_ROT",
-            "Approx. MMI",
-            "EXC",
-            "ZPE"
+            "BM MMI",
+            "BM ZPE",
+            "BM EXC",
+            "BM (total)",
+            "HS H_ZPE",
+            "HS H_VIB",
+            "HS H_TOT",
+            "HS S_VIB",
+            "HS S_ROT",
+            "HS S_TOT",
+            "HS (total)",
+            "BM (total-Wigner)",
+            "HS (total-Wigner)",
+            "BM (total-Bell)",
+            "HS (total-Bell)"
         ]
+        
         df = pd.DataFrame(columns=column_names)
 
         start_temp = float(
@@ -159,7 +179,8 @@ def kie():
                 with open(output_file_path, "r") as f:
                     lines = f.readlines()
 
-                for line in lines[5:]:  # skip 5-line header
+                # for line in lines[5:]:  # skip 5-line header (this was when we had KIE in a second row for the column header)
+                for line in lines[4:]:  # skip 4-line header
                     line_components = line.strip().split()
 
                     if "KIEs" in line_components or len(line_components) < 5:
@@ -167,11 +188,16 @@ def kie():
 
                     isotopologue_name = line_components[1]
                     all_values = list(
-                        map(float, line_components[2:17])
-                    )  # temporary? this contains enthalpy and entropy
-                    kie_values = list(
-                        map(float, line_components[2:8])
-                    )  # this does NOT contain enthalpy and entropy
+                        map(float, line_components[2:])
+                    ) 
+                    kie_values = [
+                        all_values[3],
+                        all_values[10],
+                        all_values[11],
+                        all_values[12],
+                        all_values[13],
+                        all_values[14]
+                    ]
 
                     if isotopologue_name not in kie_data:
                         kie_data[isotopologue_name] = {"temperature": [], "kies": []}
@@ -197,7 +223,7 @@ def kie():
             plt.ylabel("KIE Value")
             plt.title(f"KIE Plot for {isotopologue_name}")
 
-            kie_labels = ["Uncorrected (TH) KIE", "Uncorrected (BM) KIE", "Wigner (TH) KIE", "Wigner (BM) KIE", "Bell (TH) KIE", "Bell (BM) KIE"]
+            kie_labels = ["Uncorrected (BM) KIE", "Uncorrected (HS) KIE", "Wigner (BM) KIE", "Wigner (HS) KIE", "Bell (BM) KIE", "Bell (HS) KIE"]
 
             for i, kie_label in enumerate(kie_labels):
                 plt.plot(
@@ -311,20 +337,35 @@ def eie():
 
         eie_data = {}
 
+        # column_names = [
+        #     "Isotopologue",
+        #     "Temperature",
+        #     "EIE (TH)",
+        #     "EIE (BM)",
+        #     "Enthalpy",
+        #     "Entropy",
+        #     "H_ZPE",
+        #     "H_VIB",
+        #     "S_VIB",
+        #     "S_ROT",
+        #     "MMI",
+        #     "EXC",
+        #     "ZPE"
+        # ]
         column_names = [
             "Isotopologue",
             "Temperature",
-            "EIE (TH)",
-            "EIE (BM)",
-            "Enthalpy",
-            "Entropy",
-            "H_ZPE",
-            "H_VIB",
-            "S_VIB",
-            "S_ROT",
-            "Approx. MMI",
-            "EXC",
-            "ZPE"
+            "BM MMI",
+            "BM ZPE",
+            "BM EXC",
+            "BM (total)",
+            "HS H_ZPE",
+            "HS H_VIB",
+            "HS H_TOT",
+            "HS S_VIB",
+            "HS S_ROT",
+            "HS S_TOT",
+            "HS (total)",
         ]
         df = pd.DataFrame(columns=column_names)
 
@@ -340,20 +381,20 @@ def eie():
                 with open(output_file_path, "r") as f:
                     lines = f.readlines()
 
-                for line in lines[4:]:  # skip 5-line header
+                for line in lines[4:]:  # skip 4-line header
                     line_components = line.strip().split()
 
                     if "KIEs" in line_components or len(line_components) < 5:
                         continue  # skip any lines discussing reference/absolute isotopologue or any irrelevant lines
 
                     isotopologue_name = line_components[1]
-                    print(line_components)
                     all_values = list(
-                        map(float, line_components[2:14])
-                    )  # temporary? this contains enthalpy and entropy
-                    eie_values = list(
-                        map(float, line_components[2:4])
-                    )  # this does NOT contain enthalpy and entropy
+                        map(float, line_components[2:])
+                    )  
+                    eie_values = [
+                        all_values[3],
+                        all_values[10]
+                    ]
 
                     if isotopologue_name not in eie_data:
                         eie_data[isotopologue_name] = {"temperature": [], "eies": []}
@@ -378,7 +419,7 @@ def eie():
             plt.ylabel("EIE Value")
             plt.title(f"EIE Plot for {isotopologue_name}")
 
-            eie_labels = ["EIE (TH)", "EIE (BM)"]
+            eie_labels = ["EIE (HS)", "EIE (BM)"]
 
             for i, eie_label in enumerate(eie_labels):
                 plt.plot(
