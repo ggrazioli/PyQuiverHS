@@ -231,14 +231,36 @@ class System(object):
                 # read in the last geometry (assumed cartesian coordinates)
                 atomic_numbers = [0 for i in range(number_of_atoms)]
                 positions = np.zeros(shape=(number_of_atoms, 3))
-
-                self.rotational_temperatures = [
-                    float(val)
-                    for val in re.findall(
-                        r"Rotational temperatures \(Kelvin\) +([\d.]+) +([\d.]+) +([\d.]+)",
-                        out_data,
-                    )[0]
+                # GG: If the temperature_patterns idea works, delete 7 lines on rotational temp read stuff below
+                # self.rotational_temperatures = [
+                #     float(val)
+                #     for val in re.findall(
+                #         r"Rotational temperatures \(Kelvin\) +([\d.]+) +([\d.]+) +([\d.]+)",
+                #         out_data,
+                #     )[0]
+                # ]
+                # Read rotational temperature or temperatures, depending on symmetry:
+                temperature_patterns = [
+                    # 3-number (nonlinear)
+                    r"Rotational temperatures \(Kelvin\)\s+([\d.]+)\s+([\d.]+)\s+([\d.]+)",
+                    # 2-number (e.g. symmetric tops)
+                    r"Rotational temperatures \(Kelvin\)\s+([\d.]+)\s+([\d.]+)",
+                    # 1-number (linear)
+                    r"Rotational temperature \(Kelvin\)\s+([\d.]+)",
+                    # 1-number (linear) with temperatures as plural
+                    r"Rotational temperatures \(Kelvin\)\s+([\d.]+)"
                 ]
+
+                for pattern in temperature_patterns:
+                    matches = re.findall(pattern, out_data)
+                    if matches:
+                        # Each match is a tuple if there’s more than one group, or a string if just one
+                        first = matches[0]
+                        if isinstance(first, tuple):
+                            self.rotational_temperatures = [float(val) for val in first]
+                        else:
+                            self.rotational_temperatures = [float(first)]
+                        break  # stop after first successful pattern
 
                 self.eigenvalues_matrix = []
                 eigenvalues_match = re.search(
