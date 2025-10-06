@@ -2,3 +2,6 @@ PyQuiver/src/__pycache__/
 PyQuiver/__pycache__/*
 outputs/
 sessions/
+
+# PyCharm project settings
+.idea/
