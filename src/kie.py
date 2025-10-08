@@ -821,21 +821,21 @@ def calculate_rpfr(self, tup, imag_threshold, scaling, temperature):
         if len(light_imag_freqs) == 0:
             print("none", end=" ")
         for i in light_imag_freqs:
-            print("%.3f  " % i, end=" ")
+            print("%.6f  " % i, end=" ")
         print()
         print("light small frequencies: ", end=" ")
         for i in light_small_freqs:
-            print("%.1f  " % i, end=" ")
+            print("%.6f  " % i, end=" ")
         print()
         print("heavy imaginary frequencies: ", end=" ")
         if len(heavy_imag_freqs) == 0:
             print("none", end=" ")
         for i in heavy_imag_freqs:
-            print("%.3f  " % i, end=" ")
+            print("%.6f  " % i, end=" ")
         print()
         print("heavy small frequencies: ", end=" ")
         for i in heavy_small_freqs:
-            print("%.1f  " % i, end=" ")
+            print("%.6f  " % i, end=" ")
         print()
 
     raw_imag_ratio = None
