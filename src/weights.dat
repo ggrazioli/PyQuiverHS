@@ -19,7 +19,7 @@
 #
 # standard atomic weights are indicated by not including a mass number, e.g. H instead of 1H
 # standard atomic weights are from:
- # https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions-relative-atomic-masses
+# https://www.nist.gov/pml/atomic-weights-and-isotopic-compositions-relative-atomic-masses
 #
 hydrogen,1,H,1.007975,1H,1.007825,2D,2.014102,3T,3.016049
 helium,2,He,4.002602,3He,3.016029,4He,4.002603
