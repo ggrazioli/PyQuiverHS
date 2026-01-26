@@ -5,3 +5,6 @@ sessions/
 
 # PyCharm project settings
 .idea/
+# Mac folder data
+.DS_Store
+
