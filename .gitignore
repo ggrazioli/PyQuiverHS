@@ -1,14 +1,24 @@
+# Python cache
 PyQuiver/src/__pycache__/
 PyQuiver/__pycache__/*
+__pycache__/*
 *.pyc
+
+
+# Temporary/generated outputs
 outputs/
 sessions/
 
-# PyCharm project settings
+# IDE project settings for pycharm and vscode
 .idea/
-# Mac folder data
+.vscode/
+
+# Mac OS data
 .DS_Store
 
+Local database and secrets
 instance/
 .env
+.venv/
+
 
