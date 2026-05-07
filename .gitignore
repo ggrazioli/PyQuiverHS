@@ -1,5 +1,6 @@
 PyQuiver/src/__pycache__/
 PyQuiver/__pycache__/*
+*.pyc
 outputs/
 sessions/
 
@@ -7,4 +8,7 @@ sessions/
 .idea/
 # Mac folder data
 .DS_Store
+
+instance/
+.env
 

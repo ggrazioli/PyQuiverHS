@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Resend Confirmation</title>
+</head>
+<body>
+    <h1>Resend Confirmation Email</h1>
+
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        {% for message in messages %}
+          <p>{{ message }}</p>
+        {% endfor %}
+      {% endif %}
+    {% endwith %}
+
+    <form method="POST">
+        <input type="email" name="email" placeholder="Email" required><br>
+        <button type="submit">Resend Confirmation Email</button>
+    </form>
+
+    <a href="{{ url_for('auth.login') }}">Back to login</a>
+</body>
+</html>
