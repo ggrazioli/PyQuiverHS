@@ -48,7 +48,7 @@ def confirm_reset_token(token, expiration=3600):
 @auth_bp.route("/signup", methods=["GET", "POST"])
 def signup():
     if current_user.is_authenticated:
-        return redirect(url_for("main.upload_file"))
+        return redirect(url_for("home"))
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -119,7 +119,7 @@ def confirm_email(token):
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for("main.upload_file"))
+        return redirect(url_for("home"))
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -137,7 +137,7 @@ def login():
 
         login_user(user)
         flash("Logged in successfully.")
-        return redirect(url_for("main.upload_file"))
+        return redirect(url_for("home"))
 
     return render_template("auth/login.html")
 
@@ -165,7 +165,7 @@ def resend_confirmation():
 @auth_bp.route("/forgot-password", methods=["GET", "POST"])
 def forgot_password():
     if current_user.is_authenticated:
-        return redirect(url_for("main.upload_file"))
+        return redirect(url_for("home"))
 
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
@@ -230,4 +230,4 @@ def reset_password(token):
 def logout():
     logout_user()
     flash("Logged out.")
-    return redirect(url_for("main.landing"))
+    return redirect(url_for("landing"))

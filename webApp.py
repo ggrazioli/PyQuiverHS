@@ -7,6 +7,10 @@ import sys
 import zipfile
 import shutil
 
+from auth import auth_bp
+from extensions import db, login_manager
+from models import User
+
 # 3rd party Libriaries   
 from flask import (
     Flask,
@@ -17,6 +21,7 @@ from flask import (
     abort,
     after_this_request,
 )
+from flask_login import login_user, logout_user, current_user, login_required
 from ase import io
 import matplotlib
 import matplotlib.pyplot as plt
@@ -32,6 +37,26 @@ VALID_EXTENSIONS = {
     "file2": [".out", ".log"],
 }
 
+app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
+
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///users.db"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SECURITY_PASSWORD_SALT"] = os.environ.get(
+    "SECURITY_PASSWORD_SALT", "dev-salt"
+)
+
+db.init_app(app)
+login_manager.init_app(app)
+login_manager.login_view = "auth.login"
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.session.get(User, int(user_id))
+
+app.register_blueprint(auth_bp)
+
+with app.app_context():
+    db.create_all()
 
 # This function generates a session folder with the appropriate time
 def generate_session() -> str:
@@ -41,15 +66,21 @@ def generate_session() -> str:
     os.makedirs(folder_name, exist_ok=True)
     return folder_name
 
-
-# Load the main page
+# Load the landing page
 @app.route("/")
+def landing():
+    return render_template("landing.html")
+
+# Load the main app page
+@app.route("/app")
+@login_required
 def home():
     return render_template("mainMenu.html")
 
 
 # Load the KIE Calculation page
 @app.route("/kie", methods=["GET", "POST"])
+@login_required
 def kie():
     if request.method == "GET":
         return render_template("kie.html")
@@ -259,6 +290,7 @@ def kie():
 
 # Load the EIE page
 @app.route("/eie", methods=["GET", "POST"])
+@login_required
 def eie():
     if request.method == "GET":
         return render_template("eie.html")
@@ -455,6 +487,7 @@ def eie():
 
 # Load the config generator page
 @app.route("/config", methods=["GET", "POST"])
+@login_required
 def config():
     if request.method == "GET":
         return render_template("config.html")
@@ -544,6 +577,7 @@ def extract_structure(file_path):
 
 
 @app.route("/view_molecule", methods=["GET", "POST"])
+@login_required
 def view_molecule():
     if request.method == "POST":
         uploaded_file = request.files["file"]
