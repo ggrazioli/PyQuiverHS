@@ -41,6 +41,27 @@
       box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
     }
 
+    .user-bar {
+      background-color: var(--white);
+      padding: 10px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid #ddd;
+      font-size: 14px;
+    }
+
+    .logout-link {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
+      transition: color var(--transition);
+    }
+
+    .logout-link:hover {
+      color: var(--hover);
+    }
+
     .container {
       flex: 1;
       display: flex;
@@ -119,6 +140,16 @@
 <body>
 
   <div class="title-bar">QuiverHS</div>
+
+  <div class="user-bar">
+    <div>
+      Logged in as: <strong>{{ current_user.email }}</strong>
+    </div>
+
+  <a href="{{ url_for('auth.logout') }}" class="logout-link">
+    Log out
+  </a>
+</div>
 
   <div class="container">
     <h2>Welcome to QuiverHS!</h2>
