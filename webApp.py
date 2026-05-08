@@ -185,8 +185,21 @@ def kie():
             print("STDERR:", result.stderr, flush=True)
             print("RETURN CODE:", result.returncode, flush=True)
 
+            # if result.returncode != 0:
+            #     return f"Calculation failed:<br><pre>{result.stderr}</pre>", 500
+            # More informative error message:
             if result.returncode != 0:
-                return f"Calculation failed:<br><pre>{result.stderr}</pre>", 500
+                return f"""
+                <h2>Calculation failed</h2>
+                <h3>Args</h3>
+                <pre>{result.args}</pre>
+                <h3>STDOUT</h3>
+                <pre>{result.stdout}</pre>
+                <h3>STDERR</h3>
+                <pre>{result.stderr}</pre>
+                <h3>Return code</h3>
+                <pre>{result.returncode}</pre>
+                """, 500
 
             start_temp += float(temp_increment)
             # os.system('clear')
@@ -439,8 +452,22 @@ def eie():
             print("STDERR:", result.stderr, flush=True)
             print("RETURN CODE:", result.returncode, flush=True)
 
+            # if result.returncode != 0:
+            #     return f"Calculation failed:<br><pre>{result.stderr}</pre>", 500
+            
+            # More informative error message:
             if result.returncode != 0:
-                return f"Calculation failed:<br><pre>{result.stderr}</pre>", 500
+                return f"""
+                <h2>Calculation failed</h2>
+                <h3>Args</h3>
+                <pre>{result.args}</pre>
+                <h3>STDOUT</h3>
+                <pre>{result.stdout}</pre>
+                <h3>STDERR</h3>
+                <pre>{result.stderr}</pre>
+                <h3>Return code</h3>
+                <pre>{result.returncode}</pre>
+                """, 500
 
             start_temp += float(temp_increment)
         # os.system('clear')
