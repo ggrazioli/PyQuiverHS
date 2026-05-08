@@ -49,6 +49,7 @@ app.config["SECURITY_PASSWORD_SALT"] = os.environ.get(
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 quiver_path = os.path.join(BASE_DIR, "src", "quiver.py")
 MAX_TIME = 30 # seconds before calculation times out
+PYTHON_EXECUTABLE = os.environ.get("PYTHON_EXECUTABLE", sys.executable)
 
 db.init_app(app)
 login_manager.init_app(app)
@@ -167,7 +168,7 @@ def kie():
 
             result = subprocess.run(
                 [
-                    sys.executable,
+                    PYTHON_EXECUTABLE,
                     quiver_path,
                     config_path,
                     ground_state_path,
@@ -433,7 +434,7 @@ def eie():
 
             result = subprocess.run(
                 [
-                    sys.executable,
+                    PYTHON_EXECUTABLE,
                     quiver_path,
                     config_path,
                     gaussian_path,
