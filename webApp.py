@@ -154,7 +154,7 @@ def kie():
                 f'"{output_file_path}"'
             )
             # old way to call the command:
-            os.system(command)
+            # os.system(command)
             # more server-friendly way to call command:
             result = subprocess.run(
                 command,
