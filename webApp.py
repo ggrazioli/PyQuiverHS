@@ -153,7 +153,25 @@ def kie():
                 f'{start_temp} '
                 f'"{output_file_path}"'
             )
-            os.system(command)
+            # Old basic run command removed:
+            # os.system(command)
+            # Improved run command:
+            result = subprocess.run(
+                command,
+                shell=True,
+                cwd=BASE_DIR,
+                capture_output=True,
+                text=True,
+            )
+
+            print("COMMAND:", command, flush=True)
+            print("STDOUT:", result.stdout, flush=True)
+            print("STDERR:", result.stderr, flush=True)
+            print("RETURN CODE:", result.returncode, flush=True)
+
+if result.returncode != 0:
+    return f"Calculation failed:<br><pre>{result.stderr}</pre>", 500
+
             start_temp += float(temp_increment)
             # os.system('clear')
 
@@ -373,7 +391,21 @@ def eie():
                 f'{start_temp} '
                 f'"{output_file_path}"'
             )
-            os.system(command)
+            # Old basic run command removed:
+            # os.system(command)
+            # Improved run command:
+            result = subprocess.run(
+                command,
+                shell=True,
+                cwd=BASE_DIR,
+                capture_output=True,
+                text=True,
+            )
+
+            print("COMMAND:", command, flush=True)
+            print("STDOUT:", result.stdout, flush=True)
+            print("STDERR:", result.stderr, flush=True)
+            print("RETURN CODE:", result.returncode, flush=True)
             start_temp += float(temp_increment)
         # os.system('clear')
 
