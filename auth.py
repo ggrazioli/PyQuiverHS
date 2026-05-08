@@ -151,9 +151,9 @@ def resend_confirmation():
             token = generate_confirmation_token(user.email)
             confirm_url = url_for("auth.confirm_email", token=token, _external=True)
 
-            print("\n=== RESENT EMAIL CONFIRMATION LINK ===")
-            print(confirm_url)
-            print("=== END RESENT CONFIRMATION LINK ===\n")
+            print("\n=== RESENT EMAIL CONFIRMATION LINK ===", flush=True)
+            print(confirm_url, flush=True)
+            print("=== END RESENT CONFIRMATION LINK ===\n", flush=True)
 
             # Later replace print(...) with real email send
 
