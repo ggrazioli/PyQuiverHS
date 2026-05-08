@@ -45,6 +45,10 @@ app.config["SECURITY_PASSWORD_SALT"] = os.environ.get(
     "SECURITY_PASSWORD_SALT", "dev-salt"
 )
 
+# Define some important file paths:
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+quiver_path = os.path.join(BASE_DIR, "src", "quiver.py")
+
 db.init_app(app)
 login_manager.init_app(app)
 login_manager.login_view = "auth.login"
@@ -58,10 +62,20 @@ app.register_blueprint(auth_bp)
 with app.app_context():
     db.create_all()
 
+# Old function to generate a session folder with the appropriate time, delete later
+# def generate_session() -> str:
+#     folder_name = os.path.join(
+#         "sessions", "session_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+#     )
+#     os.makedirs(folder_name, exist_ok=True)
+#     return folder_name
+
 # This function generates a session folder with the appropriate time
 def generate_session() -> str:
     folder_name = os.path.join(
-        "sessions", "session_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
+        BASE_DIR,
+        "sessions",
+        "session_" + datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S")
     )
     os.makedirs(folder_name, exist_ok=True)
     return folder_name
@@ -128,8 +142,17 @@ def kie():
             output_file_path = os.path.join(
                 app.config["SESSION_FOLDER"], f"output_{start_temp}.txt"
             )
-
-            command = f"{sys.executable} {os.path.join('src', 'quiver.py')} {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path}"
+            # Old way to create command, delete later
+            # command = f"{sys.executable} {os.path.join('src', 'quiver.py')} {config_path} {ground_state_path} {transition_state_path} {start_temp} {output_file_path}"
+            command = (
+                f'"{sys.executable}" '
+                f'"{quiver_path}" '
+                f'"{config_path}" '
+                f'"{ground_state_path}" '
+                f'"{transition_state_path}" '
+                f'{start_temp} '
+                f'"{output_file_path}"'
+            )
             os.system(command)
             start_temp += float(temp_increment)
             # os.system('clear')
@@ -339,8 +362,17 @@ def eie():
                 app.config["SESSION_FOLDER"], f"output_{start_temp}.txt"
             )
 
-            # run the python program
-            command = f"{sys.executable} {os.path.join('src', 'quiver.py')} {config_path} {gaussian_path} {gaussian_path} {start_temp} {output_file_path}"
+            # Old way to create command, delete later
+            # command = f"{sys.executable} {os.path.join('src', 'quiver.py')} {config_path} {gaussian_path} {gaussian_path} {start_temp} {output_file_path}"
+            command = (
+                f'"{sys.executable}" '
+                f'"{quiver_path}" '
+                f'"{config_path}" '
+                f'"{gaussian_path}" '
+                f'"{gaussian_path}" '
+                f'{start_temp} '
+                f'"{output_file_path}"'
+            )
             os.system(command)
             start_temp += float(temp_increment)
         # os.system('clear')
