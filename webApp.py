@@ -155,7 +155,7 @@ def kie():
             )
             # old way to call the command:
             # os.system(command)
-            # more server-friendly way to call command:
+            # more server-friendly way to call command: 
             result = subprocess.run(
                 command,
                 shell=True,
