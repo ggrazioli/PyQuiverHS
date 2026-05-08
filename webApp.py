@@ -156,9 +156,24 @@ def kie():
             # old way to call the command:
             # os.system(command)
             # more server-friendly way to call command: 
+            # result = subprocess.run(
+            #     command,
+            #     shell=True,
+            #     cwd=BASE_DIR,
+            #     capture_output=True,
+            #     text=True,
+            # )
+
             result = subprocess.run(
-                command,
-                shell=True,
+                [
+                    sys.executable,
+                    quiver_path,
+                    config_path,
+                    ground_state_path,
+                    transition_state_path,
+                    str(start_temp),
+                    output_file_path,
+                ],
                 cwd=BASE_DIR,
                 capture_output=True,
                 text=True,
@@ -394,13 +409,29 @@ def eie():
             # Old way to call command:
             # os.system(command)
             # more server-friendly way to call command:
+            # result = subprocess.run(
+            #     command,
+            #     shell=True,
+            #     cwd=BASE_DIR,
+            #     capture_output=True,
+            #     text=True,
+            # )
+
             result = subprocess.run(
-                command,
-                shell=True,
+                [
+                    sys.executable,
+                    quiver_path,
+                    config_path,
+                    gaussian_path,
+                    gaussian_path,
+                    str(start_temp),
+                    output_file_path,
+                ],
                 cwd=BASE_DIR,
                 capture_output=True,
                 text=True,
             )
+
 
             print("COMMAND:", command, flush=True)
             print("STDOUT:", result.stdout, flush=True)
