@@ -299,7 +299,7 @@ def eie():
         temperature = request.form.get("temperature").split(",")
         temp_increment = request.form.get("temp_increment")
 
-        # for case where only one temp is given
+        # for case where only one temp is given 
         if len(temperature) == 1:
             temperature.append(temperature[0])
             temp_increment = 1
