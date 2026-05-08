@@ -73,7 +73,7 @@ def signup():
             return redirect(url_for("auth.signup"))
         # Note: set confirmed=False in production, bypassing email
         # confirmation temporarily with confirmed=True 
-        user = User(email=email, confirmed=True)
+        user = User(email=email, confirmed=False)
         user.set_password(password)
 
         db.session.add(user)
