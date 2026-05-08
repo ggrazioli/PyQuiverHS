@@ -86,13 +86,27 @@
     <img src="{{ url_for('static', filename='images/pyquiverHSlogo.jpg') }}" class="logo">
 
     <h2>Sign Up</h2>
-
-    <form method="POST">
+    <!-- Uncomment below to allow new user signup  -->
+    <!-- <form method="POST">
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
         <input type="password" name="confirm_password" placeholder="Confirm Password" required>
         <button type="submit">Sign Up</button>
+    </form> -->
+    <!-- # Uncomment above to allow new user signup -->
+
+    <!-- Comment out below to allow new user signup  -->
+    <p style="margin-top: 15px; color: #555;">
+        New account registration is temporarily disabled while the site is in testing.
+    </p>
+
+    <form>
+        <input type="email" placeholder="Email" disabled>
+        <input type="password" placeholder="Password" disabled>
+        <input type="password" placeholder="Confirm Password" disabled>
+        <button type="button" disabled>Sign Up</button>
     </form>
+    <!-- Comment out above to allow new user signup -->
 
     <a href="{{ url_for('auth.login') }}">Already have an account?</a>
 </div>
