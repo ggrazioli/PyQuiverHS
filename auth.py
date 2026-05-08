@@ -71,8 +71,9 @@ def signup():
         if existing_user:
             flash("User already exists.")
             return redirect(url_for("auth.signup"))
-
-        user = User(email=email, confirmed=False)
+        # Note: set confirmed=False in production, bypassing email
+        # confirmation temporarily with confirmed=True 
+        user = User(email=email, confirmed=True)
         user.set_password(password)
 
         db.session.add(user)
