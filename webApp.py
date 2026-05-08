@@ -48,8 +48,6 @@ app.config["SECURITY_PASSWORD_SALT"] = os.environ.get(
 # Define some important file paths:
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 quiver_path = os.path.join(BASE_DIR, "src", "quiver.py")
-# Maximum time to hang before calling it a failure
-MAX_TIME = 30 # seconds
 
 db.init_app(app)
 login_manager.init_app(app)
@@ -177,7 +175,7 @@ if result.returncode != 0:
             start_temp += float(temp_increment)
             # os.system('clear')
 
-            timeout = MAX_TIME  # seconds
+            timeout = 5  # seconds
             start_time = time.time()
             while not os.path.exists(output_file_path):
                 if time.time() - start_time > timeout:
@@ -413,7 +411,7 @@ def eie():
 
         # If the calculations is long, the file may not be immidiately ready.
         # This timeout ensures that the reason for error was not the length of calculations
-        timeout = MAX_TIME  # seconds.
+        timeout = 5  # seconds.
         start_time = time.time()
         while not os.path.exists(output_file_path):
             if time.time() - start_time > timeout:
