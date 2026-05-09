@@ -1,20 +1,30 @@
 # TUTORIAL
-## SETUP & RUN
-To set up this program locally:
-1. Head to the [github page](https://github.com/ggrazioli/pyquiver_grg) of the program. Press the green "code" button, and select "Download ZIP" at the bottom of the drop down menu.
-2. Download and install the [latest version of python](https://www.python.org/downloads/).
-3. Open a terminal/console/command prompt in the main directory of the program.
-4. Run ```pip install -r requirements.txt``` or ```pip3 install -r requirements.txt``` (try pip; if not pip3).
-5. Run ```python webApp.py``` or ```python3 webApp.py```.
-6. Launch a browser tab and open the address shown on the terminal (usually [http://127.0.0.1:5000](http://127.0.0.1:5000)).
-7. If everything is done correctly, you should see the main menu. ![Main Page](../pics/main_menu.png)
-## FURTHER SECTIONS
-**Please click on each module for further instructions** (note: does not work in the in-app version, please use the side buttons.)
-- [KIE Calculations](KIE.md)
-- [EIE Calculations](EIE.md)
-- [Configuration File Generator](CONFIG.md)
-- [Molecule Viewer](MOLECULE.md)
-### Tutorial (page)
-This button will simply display each module on the web platform.
-### Technical Paper
-Pressing this button will allow the user to download the technical paper.
+## INTRODUCTION
+![Main Page](../pics/main_menu.png)
+
+PyQuiverHS is an open-source web-based application to calculate Kinetic Isotope Effects (KIE) and Equilibrium Isotope Effects (EIE) using harmonic frequencies and both the Bigeleisen-Mayer (B-M) formalism and a thermodynamic approach that partitions isotope effects into their enthalpic and entropic (H-S) components. Additionally, this program directly calculates and displays the component of each approach separately. PyQuiverHS is based on PyQuiver, which requires Cartesian Hessian matrices that can be calculated using any electronic structure program.
+
+
+## FEATURES
+- Automatically read frequencies from [`Gaussian`](http://www.gaussian.com/g_prod/g09.htm) output files.
+- Ability to view the molecules from the generated Gaussian files.
+- Two separate methods for computing the isotope effects:
+    - Thermodynamic enthalpy-entropy approach (H-S)
+    - Bigeleisen-Mayer formalism (B-M)
+- Ability to view and compare the component contributions for each approach, including:
+    - Zero-point energy contributions to enthalpy (H_ZPE) for H-S
+    - Vibrational contributions to enthalpy (H_VIB) for H-S
+    - Total thermal vibrational contributions to enthalpy (H_ZPE * H_VIB = H_TOT) for H-S
+    - Vibrational contributions to entropy (S_VIB) for H-S
+    - Rotational contributions to entropy (S_ROT) for H-S
+    - Total contributions to entropy (S_VIB * S_ROT = S_TOT) for H-S
+    - Total free energy contributions to isotope effect (H_TOT * S_TOT = G_TOT = HS) for H-S
+    - Mass and moment of inertia (MMI) factor for B-M
+    - Zero-point energy (ZPE) factor for B-M
+    - Excitation (EXC) factor for B-M
+    - Total contributions to isotope effect (MMI * ZPE * EXC = BM) for B-M
+- Ability to rapidly calculate temperature ranges with custom increments. 
+- Simple and accessible output file formats, such .csv and .txt
+- Automatically generated plots for temperature ranges.
+
+
