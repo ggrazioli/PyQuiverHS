@@ -11,6 +11,10 @@ from auth import auth_bp
 from extensions import db, login_manager
 from models import User
 
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+from extensions import db, login_manager, limiter
+
 # 3rd party Libriaries   
 from flask import (
     Flask,
@@ -30,6 +34,12 @@ import pandas as pd
 matplotlib.use("Agg")
 
 app = Flask(__name__)
+
+limiter = Limiter(
+    get_remote_address,
+    app=app,
+    default_limits=[]
+)
 
 VALID_EXTENSIONS = {
     "config_file": [".config"],

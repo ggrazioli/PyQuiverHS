@@ -3,6 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from extensions import db
 from models import User
+from extensions import db, limiter
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -46,6 +47,7 @@ def confirm_reset_token(token, expiration=3600):
 
 
 @auth_bp.route("/signup", methods=["GET", "POST"])
+@limiter.limit("5 per hour")
 def signup():
     if current_user.is_authenticated:
         return redirect(url_for("home"))
@@ -118,6 +120,7 @@ def confirm_email(token):
     return redirect(url_for("auth.login"))
 
 @auth_bp.route("/login", methods=["GET", "POST"])
+@limiter.limit("10 per minute")
 def login():
     if current_user.is_authenticated:
         return redirect(url_for("home"))
@@ -164,6 +167,7 @@ def resend_confirmation():
     return render_template("auth/resend_confirmation.html")
 
 @auth_bp.route("/forgot-password", methods=["GET", "POST"])
+@limiter.limit("5 per hour")
 def forgot_password():
     if current_user.is_authenticated:
         return redirect(url_for("home"))
