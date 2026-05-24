@@ -3,7 +3,8 @@ from flask_login import login_user, logout_user, current_user, login_required
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from extensions import db
 from models import User
-from extensions import db, limiter, mail
+from extensions import db, limiter, mail, message
+
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -44,6 +45,31 @@ def confirm_reset_token(token, expiration=3600):
         return None
     except BadSignature:
         return None
+    
+def send_confirmation_email(user):
+    token = generate_confirmation_token(user.email)
+    confirm_url = url_for("auth.confirm_email", token=token, _external=True)
+
+    msg = Message(
+        subject="Confirm your QuiverHS account",
+        recipients=[user.email],
+    )
+
+    msg.body = f"""Welcome to PyQuiverHS!
+
+Please confirm your email address by visiting the link below:
+
+{confirm_url}
+
+If you did not create this account, you can ignore this message.
+"""
+
+    msg.html = render_template(
+        "email/confirm_account.html",
+        confirm_url=confirm_url
+    )
+
+    mail.send(msg)
 
 
 @auth_bp.route("/signup", methods=["GET", "POST"])
@@ -83,36 +109,38 @@ def signup():
 
         print("SIGNUP SUCCESS - GENERATING TOKEN")
 
-        token = generate_confirmation_token(user.email)
-        confirm_url = url_for("auth.confirm_email", token=token, _external=True)
+        send_confirmation_email(user)
 
-        # Confirmation link to terminal for testing:
-        # print("\n=== EMAIL CONFIRMATION LINK ===")
-        # print(confirm_url)
-        # print("=== END CONFIRMATION LINK ===\n")
+        # token = generate_confirmation_token(user.email)
+        # confirm_url = url_for("auth.confirm_email", token=token, _external=True)
 
-        # Create confirmation email and send it:
-        msg = Message(
-            subject="Confirm your QuiverHS account",
-            recipients=[email],
-        )
+        # # Confirmation link to terminal for testing:
+        # # print("\n=== EMAIL CONFIRMATION LINK ===")
+        # # print(confirm_url)
+        # # print("=== END CONFIRMATION LINK ===\n")
 
-        msg.body = f"""
-        Welcome to PyQuiverHS!
+        # # Create confirmation email and send it:
+        # msg = Message(
+        #     subject="Confirm your QuiverHS account",
+        #     recipients=[email],
+        # )
 
-        Please confirm your email address by visiting the link below:
+        # msg.body = f"""
+        # Welcome to PyQuiverHS!
 
-        {confirm_url}
+        # Please confirm your email address by visiting the link below:
 
-        If you did not create this account, you can ignore this message.
-        """
+        # {confirm_url}
 
-        msg.html = render_template(
-            "email/confirm_account.html",
-            confirm_url=confirm_url
-        )
+        # If you did not create this account, you can ignore this message.
+        # """
 
-        mail.send(msg)
+        # msg.html = render_template(
+        #     "email/confirm_account.html",
+        #     confirm_url=confirm_url
+        # )
+
+        # mail.send(msg)
 
         flash("Account created.")
         return redirect(url_for("auth.login"))
@@ -179,11 +207,14 @@ def resend_confirmation():
             token = generate_confirmation_token(user.email)
             confirm_url = url_for("auth.confirm_email", token=token, _external=True)
 
-            print("\n=== RESENT EMAIL CONFIRMATION LINK ===", flush=True)
-            print(confirm_url, flush=True)
-            print("=== END RESENT CONFIRMATION LINK ===\n", flush=True)
+            # PRINTS CONFIRMATION TO TERMINAL FOR TESTING
+            # print("\n=== RESENT EMAIL CONFIRMATION LINK ===", flush=True)
+            # print(confirm_url, flush=True)
+            # print("=== END RESENT CONFIRMATION LINK ===\n", flush=True)
 
             # Later replace print(...) with real email send
+
+            send_confirmation_email(user)
 
         flash("If that account exists and is not yet confirmed, a new confirmation email has been sent.")
         return redirect(url_for("auth.login"))
@@ -218,7 +249,7 @@ def forgot_password():
 @auth_bp.route("/reset-password/<token>", methods=["GET", "POST"])
 def reset_password(token):
     if current_user.is_authenticated:
-        return redirect(url_for("main.upload_file"))
+        return redirect(url_for("home"))
 
     email = confirm_reset_token(token)
     if not email:
