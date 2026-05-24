@@ -3,7 +3,8 @@ from flask_login import login_user, logout_user, current_user, login_required
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from extensions import db
 from models import User
-from extensions import db, limiter, mail, message
+from extensions import db, limiter, mail
+from flask_mail import Message
 
 
 
