@@ -13,7 +13,7 @@ from models import User
 
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
-from extensions import db, login_manager, limiter
+from extensions import db, login_manager, limiter, mail
 
 # 3rd party Libriaries   
 from flask import (
@@ -34,6 +34,8 @@ import pandas as pd
 matplotlib.use("Agg")
 
 app = Flask(__name__)
+
+mail.init_app(app)
 
 limiter = Limiter(
     get_remote_address,
@@ -776,6 +778,17 @@ def serve_tutorial_files():
         download_name=f"tutorial_files.zip",
     )
 
+# REMOVE TEST EMAIL ROUTE BELOW BEFORE PRODUCTION
+@app.route("/test-email")
+def test_email():
+
+    confirm_url = "https://www.isotope-effects.com/auth/confirm/exampletoken"
+
+    return render_template(
+        "email/confirm_account.html",
+        confirm_url=confirm_url
+    )
+# END OF TEST EMAIL ROUTE, REMOVE BEFORE PRODUCTION
 
 if __name__ == "__main__":
     app.run()

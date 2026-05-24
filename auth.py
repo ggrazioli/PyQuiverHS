@@ -3,7 +3,7 @@ from flask_login import login_user, logout_user, current_user, login_required
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired, BadSignature
 from extensions import db
 from models import User
-from extensions import db, limiter
+from extensions import db, limiter, mail
 
 
 auth_bp = Blueprint("auth", __name__, url_prefix="/auth")
@@ -86,9 +86,33 @@ def signup():
         token = generate_confirmation_token(user.email)
         confirm_url = url_for("auth.confirm_email", token=token, _external=True)
 
-        print("\n=== EMAIL CONFIRMATION LINK ===")
-        print(confirm_url)
-        print("=== END CONFIRMATION LINK ===\n")
+        # Confirmation link to terminal for testing:
+        # print("\n=== EMAIL CONFIRMATION LINK ===")
+        # print(confirm_url)
+        # print("=== END CONFIRMATION LINK ===\n")
+
+        # Create confirmation email and send it:
+        msg = Message(
+            subject="Confirm your QuiverHS account",
+            recipients=[email],
+        )
+
+        msg.body = f"""
+        Welcome to PyQuiverHS!
+
+        Please confirm your email address by visiting the link below:
+
+        {confirm_url}
+
+        If you did not create this account, you can ignore this message.
+        """
+
+        msg.html = render_template(
+            "email/confirm_account.html",
+            confirm_url=confirm_url
+        )
+
+        mail.send(msg)
 
         flash("Account created.")
         return redirect(url_for("auth.login"))
