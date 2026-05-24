@@ -440,16 +440,7 @@ def eie():
                 f'{start_temp} '
                 f'"{output_file_path}"'
             )
-            # Old way to call command:
-            # os.system(command)
-            # more server-friendly way to call command:
-            # result = subprocess.run(
-            #     command,
-            #     shell=True,
-            #     cwd=BASE_DIR,
-            #     capture_output=True,
-            #     text=True,
-            # )
+            
 
             result = subprocess.run(
                 [

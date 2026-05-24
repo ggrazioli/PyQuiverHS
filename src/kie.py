@@ -695,36 +695,7 @@ def partition_components_frequency(self, freqs_heavy, freqs_light, temperature, 
 
     return np.array(components), np.array(enth_components), np.array(entr_components)
 
-
-# def partition_components_rotational(
-#     atomDF_heavy, atomDF_light, temperature, symmetry_factor=1
-# ):
-#     q_r_h = q_r(atomDF_heavy, temperature, symmetry_factor)
-#     q_r_l = q_r(atomDF_light, temperature, symmetry_factor)
-
-#     S_rot_h = rCal * (np.log(q_r_h) + 3 / 2)
-#     S_rot_l = rCal * (np.log(q_r_l) + 3 / 2)
-
-#     return S_rot_h - S_rot_l
-
-
-# def rot_temps_swapped():
-#     row1 = {'atom':['H','C','O','N','H','H'],
-#         'atom_num':[1,6,8,7,1,1],
-#         'mass':[1.00783, 12.00000, 15.99491, 14.00307, 2.01410, 1.00783], #amu
-#         'x':[0.309915, 0.202735, 1.145933, -1.156046, -1.300366, -1.301101], #positions in Angstroms
-#         'y':[1.488070, 0.406125, -0.308020, -0.030953, -0.621913, -0.622071],
-#         'z':[0.000065, -0.000037, -0.000019, 0.000002, 0.800556, -0.800269]}
-#     atoms_DF = pd.DataFrame(row1)
-#     I_data = get_I_data(atoms_DF)
-#     theta_r_xyz(I_data)
-
-
 def create_atomDF(isotopologue):
-    # ref_isotopologue = gs_tuple[0]
-    # isotopologue = gs_tuple[1]
-    # name = isotopologue.name
-
     masses = isotopologue.masses
     positions = isotopologue.system.positions_angstrom
     atomic_numbers = isotopologue.system.atomic_numbers
