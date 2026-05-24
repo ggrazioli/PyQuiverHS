@@ -35,11 +35,6 @@ matplotlib.use("Agg")
 
 app = Flask(__name__)
 
-mail.init_app(app)
-MAIL_SERVER = "smtp.gmail.com"
-MAIL_PORT = 587
-MAIL_USE_TLS = True
-
 limiter = Limiter(
     get_remote_address,
     app=app,
@@ -59,6 +54,15 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SECURITY_PASSWORD_SALT"] = os.environ.get(
     "SECURITY_PASSWORD_SALT", "dev-salt"
 )
+app.config["MAIL_SERVER"] = "smtp.gmail.com"
+app.config["MAIL_PORT"] = 587
+app.config["MAIL_USE_TLS"] = True
+app.config["MAIL_USERNAME"] = os.environ.get("EMAIL_USER")
+app.config["MAIL_PASSWORD"] = os.environ.get("EMAIL_PASS")
+app.config["MAIL_DEFAULT_SENDER"] = os.environ.get("EMAIL_USER")
+
+mail.init_app(app)
+
 
 # Define some important file paths:
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
