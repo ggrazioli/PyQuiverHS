@@ -36,6 +36,9 @@ matplotlib.use("Agg")
 app = Flask(__name__)
 
 mail.init_app(app)
+MAIL_SERVER = "smtp.gmail.com"
+MAIL_PORT = 587
+MAIL_USE_TLS = True
 
 limiter = Limiter(
     get_remote_address,
