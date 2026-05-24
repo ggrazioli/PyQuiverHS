@@ -779,15 +779,15 @@ def serve_tutorial_files():
     )
 
 # REMOVE TEST EMAIL ROUTE BELOW BEFORE PRODUCTION
-@app.route("/test-email")
-def test_email():
+# @app.route("/test-email")
+# def test_email():
 
-    confirm_url = "https://www.isotope-effects.com/auth/confirm/exampletoken"
+#     confirm_url = "https://www.isotope-effects.com/auth/confirm/exampletoken"
 
-    return render_template(
-        "email/confirm_account.html",
-        confirm_url=confirm_url
-    )
+#     return render_template(
+#         "email/confirm_account.html",
+#         confirm_url=confirm_url
+#     )
 # END OF TEST EMAIL ROUTE, REMOVE BEFORE PRODUCTION
 
 if __name__ == "__main__":
