@@ -15,7 +15,8 @@ If done correctly, your output will resemble the following: ![SAMPLE CONFIG](../
 For the case of mutiple isotopic substitution, indicate all isotopomers with the same label as follows:
 ![MULTI SUBSTITUTION](../pics/multiconfig.png)
 
-## Some commonly used replacements:
+## Isotope replacements:
+Users are encouraged to <a href="/download/weights" download>download the atomic weights file</a> to see the full list of possibles substitutions. Additionally, some commonly substituted isotope names are shown below:
 ### Hydrogen
 * Protium: 1H
 * Deuterium: 2D

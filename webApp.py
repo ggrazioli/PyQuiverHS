@@ -761,6 +761,13 @@ def serve_tutorial(filename):
         abort(403)
     return send_from_directory("tutorials", filename)
 
+@app.route("/download/weights")
+def download_weights():
+    return send_from_directory(
+        "src",
+        "weights.dat",
+        as_attachment=True
+    )
 
 @app.route("/pics/<filename>")
 def serve_pictures(filename):
