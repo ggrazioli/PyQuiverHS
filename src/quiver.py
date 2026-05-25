@@ -115,8 +115,24 @@ class Isotopologue(object):
                 if f < -imag_threshold:
                     imaginary_freqs.append(f)
 
-            if len(imaginary_freqs) > 1 and settings.DEBUG >= 2:
-                print("WARNING: multiple imaginaries")
+            # if len(imaginary_freqs) > 1 and settings.DEBUG >= 2:
+            #     print("WARNING: multiple imaginaries")
+
+            if len(imaginary_freqs) > 1:
+                warning_msg = (
+                    f"WARNING: Multiple significant imaginary frequencies detected "
+                    f"for isotopologue {self.name}: {imaginary_freqs}. "
+                    "This may indicate a higher-order saddle point or "
+                    "an unconverged transition state, or your imaginary "
+                    "frequency threshold may just be a bit too small."
+                )
+
+                print(warning_msg)
+
+                if not hasattr(self.system, "warnings"):
+                    self.system.warnings = []
+
+                self.system.warnings.append(warning_msg)
 
             # strip the imaginary frequencies
             freqs = freqs[len(imaginary_freqs) :]
@@ -501,6 +517,11 @@ if __name__ == "__main__":
         file.write(f"At {args.temp}K")
         file.write("\n")
         file.write(str(calc)) 
+        # print warning at the bottom if multiple negative frequencies
+        if calc.warnings:
+            file.write("\n\n=== WARNINGS ===\n")
+            for warning in calc.warnings:
+                file.write(warning + "\n")
     print(f"Completed. Output results are at {args.file}")
 
 

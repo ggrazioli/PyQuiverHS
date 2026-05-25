@@ -44,6 +44,7 @@ class KIE_Calculation(object):
             )
 
         self.path = path
+        self.warnings = []
 
         if type(gs) is str:
             self.gs_system = quiver.System(gs, style=style)
@@ -101,6 +102,13 @@ class KIE_Calculation(object):
             KIES[name] = kie
 
         for name, k in KIES.items():
+            # Add warnings in case of multiple negative frequencies
+            for iso in [k.gs_tuple[0], k.gs_tuple[1], k.ts_tuple[0], k.ts_tuple[1]]:
+                if hasattr(iso.system, "warnings"):
+                    for warning in iso.system.warnings:
+                        if warning not in self.warnings:
+                            self.warnings.append(warning)
+
             if name != self.config.reference_isotopologue:
                 if self.eie_flag == -1:
                     eie_flag_iso = name

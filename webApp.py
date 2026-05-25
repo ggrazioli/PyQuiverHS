@@ -305,8 +305,16 @@ def kie():
                 for line in lines[4:]:  # skip 4-line header
                     line_components = line.strip().split()
 
-                    if "KIEs" in line_components or len(line_components) < 5:
-                        continue  # skip any lines discussing reference/absolute isotopologue or any irrelevant lines
+                    # if "KIEs" in line_components or len(line_components) < 5:
+                    #     continue  
+                    # skip any lines discussing reference/absolute isotopologue or any irrelevant lines
+                    if (
+                        "KIEs" in line_components
+                        or len(line_components) < 5
+                        or line_components[0].startswith("WARNING")
+                        or line_components[0].startswith("===")
+                    ):
+                        continue
 
                     isotopologue_name = line_components[1]
                     all_values = list(
