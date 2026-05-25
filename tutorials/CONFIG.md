@@ -16,7 +16,7 @@ For the case of mutiple isotopic substitution, indicate all isotopomers with the
 ![MULTI SUBSTITUTION](../pics/multiconfig.png)
 
 ## Isotope replacements:
-Users are encouraged to <a href="/download/weights" download>download the atomic weights file</a> to see the full list of possibles substitutions. Additionally, some commonly substituted isotope names are shown below:
+Users are encouraged to <a href="/download/weights" download>download the atomic weights file</a> and open it with any text editor to see the full list of possibles substitutions. Additionally, some commonly substituted isotope names are shown below:
 ### Hydrogen
 * Protium: 1H
 * Deuterium: 2D
