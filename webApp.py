@@ -583,6 +583,22 @@ def eie():
                     all_values = list(
                         map(float, line_components[2:])
                     )  
+
+                    expected_num_values = 11
+
+                    if len(all_values) < expected_num_values:
+                        return f"""
+                        <h2>Calculation failed</h2>
+                        <p>
+                            The EIE calculation output did not contain all expected values.
+                            This may indicate an issue with the calculation output or frequency parsing.
+                        </p>
+                        <h3>Problematic output line</h3>
+                        <pre>{line}</pre>
+                        <h3>Parsed numerical values</h3>
+                        <pre>{all_values}</pre>
+                        """, 400
+
                     eie_values = [
                         all_values[3],
                         all_values[10]
