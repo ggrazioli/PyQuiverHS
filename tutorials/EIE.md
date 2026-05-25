@@ -5,7 +5,7 @@ In this tutorial, we will reproduce the intramolecular hydrogen–deuterium exch
 |-----------------------------------------------|-------------------------------------------------------|
 | Reaction                                      | Molecule Numbering                                    |
 
-First, generate the configuration file through the Configuration File Generator. For a guide, please look at the [config file tutorial](CONFIG.md).
+First, generate the configuration file through the Configuration File Generator. For a guide, please look at the <a href="#" onclick="loadTutorial('/tutorials/CONFIG.md'); return false;">config file tutorial</a>.
 
 After generating the configuration file, along with obtaining the Gaussian file for the equilibrium reaction (Note: this tutorial requires a verbose Gaussian output file. To ensure the necessary details are included in your output, make sure to use the #P keyword in the route section of your Gaussian input file.): 
 1. Head to the EIE page.
