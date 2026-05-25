@@ -7,7 +7,7 @@ In this tutorial, we will reproduce the amide bond rotation in formamide shown b
 
 
 
-First, generate the configuration file through the Configuration File Generator. For a guide, please look at the [config file tutorial](CONFIG.md).
+First, generate the configuration file through the Configuration File Generator. For a guide, please look at the [config file tutorial](tutorials/CONFIG.md).
 
 After generating the configuration file, along with obtaining the Gaussian files for both the ground state and transition state (Note: this tutorial requires a verbose Gaussian output file. To ensure the necessary details are included in your output, make sure to use the #P keyword in the route section of your Gaussian input file.): 
 1. Head to the KIE page.

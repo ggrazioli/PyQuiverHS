@@ -15,7 +15,7 @@ If done correctly, your output will resemble the following: ![SAMPLE CONFIG](../
 For the case of mutiple isotopic substitution, indicate all isotopomers with the same label as follows:
 ![MULTI SUBSTITUTION](../pics/multiconfig.png)
 
-## Possible replacements
+## Some commonly used replacements:
 ### Hydrogen
 * Protium: 1H
 * Deuterium: 2D
