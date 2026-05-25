@@ -330,10 +330,6 @@ def kie():
                             your imaginary frequency is -40 cm<sup>-1</sup>, then a threshold of 
                             50 cm<sup>-1</sup> is too large, perhaps try 30 cm<sup>-1</sup>.
                         </p>
-                        <h3>Problematic output line</h3>
-                        <pre>{line}</pre>
-                        <h3>Parsed numerical values</h3>
-                        <pre>{all_values}</pre>
                         """, 400
 
                     kie_values = [
