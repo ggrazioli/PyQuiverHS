@@ -38,7 +38,8 @@ app = Flask(__name__)
 limiter = Limiter(
     get_remote_address,
     app=app,
-    default_limits=[]
+    default_limits=[],
+    storage_uri="memory://"
 )
 
 VALID_EXTENSIONS = {
