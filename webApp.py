@@ -374,7 +374,8 @@ def kie():
             os.path.join(original_cwd, SESSION_FOLDER, "outputs.zip"),
             mimetype="application/zip",
             as_attachment=True,
-            download_name=f"{SESSION_FOLDER}.zip",
+            download_name="results.zip",
+            # download_name=f"{SESSION_FOLDER}.zip",
         )
 
 
@@ -619,7 +620,8 @@ def eie():
             os.path.join(original_cwd, SESSION_FOLDER, "outputs.zip"),
             mimetype="application/zip",
             as_attachment=True,
-            download_name=f"{SESSION_FOLDER}.zip",
+            download_name="results.zip",
+            # download_name=f"{SESSION_FOLDER}.zip",
         )
 
 
