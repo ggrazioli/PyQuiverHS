@@ -500,7 +500,7 @@ if __name__ == "__main__":
     with open(args.file, "a") as file:
         file.write(f"At {args.temp}K")
         file.write("\n")
-        file.write(str(calc))
+        file.write(str(calc)) 
     print(f"Completed. Output results are at {args.file}")
 
 
