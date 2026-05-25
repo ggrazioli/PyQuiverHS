@@ -312,6 +312,30 @@ def kie():
                     all_values = list(
                         map(float, line_components[2:])
                     ) 
+
+                    expected_num_values = 15
+
+                    if len(all_values) < expected_num_values:
+                        return f"""
+                        <h2>Calculation failed</h2>
+                        <p>
+                            The calculation output did not contain all expected KIE values.
+                            This often happens when the imaginary frequency threshold is larger 
+                            than the magnitude of the true transition state imaginary frequency.
+                        </p>
+                        <p>
+                            Please inspect your transition state Gaussian output file and choose an
+                            imaginary frequency threshold that keeps the true transition state mode
+                            while ignoring only small near-zero numerical artifacts. For example if 
+                            your imaginary frequency is -40 cm<sup>-1</sup>, then a threshold of 
+                            50 cm<sup>-1</sup> is too large, perhaps try 30 cm<sup>-1</sup>.
+                        </p>
+                        <h3>Problematic output line</h3>
+                        <pre>{line}</pre>
+                        <h3>Parsed numerical values</h3>
+                        <pre>{all_values}</pre>
+                        """, 400
+
                     kie_values = [
                         all_values[3],
                         all_values[10],
