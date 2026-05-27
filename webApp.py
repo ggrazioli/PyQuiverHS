@@ -717,8 +717,9 @@ def config():
         # f.write(f"temperature {temperature}\n\n")
         f.write(f"temperature 298\n\n")
 
-        # TODO Implement this
         # light isotopomer mass replacement
+        # consider allowing users to customize the light isotopes later, 
+        # default is fine for now
         f.write("# specifies the masses used for the light isotopomer\n")
         f.write(f"mass_override_isotopologue {'default'}\n\n")
 
