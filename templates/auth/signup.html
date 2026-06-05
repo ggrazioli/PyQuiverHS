@@ -87,16 +87,16 @@
 
     <h2>Sign Up</h2>
     <!-- Code below allows new user signup  -->
-    <!-- <form method="POST">
+    <form method="POST">
         <input type="email" name="email" placeholder="Email" required>
         <input type="password" name="password" placeholder="Password" required>
         <input type="password" name="confirm_password" placeholder="Confirm Password" required>
         <button type="submit">Sign Up</button>
-    </form> -->
+    </form>
     <!-- # Code above allows new user signup -->
 
     <!-- Code below blocks new user signup, gives grayed out signup  -->
-    <p style="margin-top: 15px; color: #555;">
+    <!-- <p style="margin-top: 15px; color: #555;">
         New account registration is temporarily disabled while the site is in testing.
     </p> 
 
@@ -105,7 +105,7 @@
         <input type="password" placeholder="Password" disabled>
         <input type="password" placeholder="Confirm Password" disabled>
         <button type="button" disabled>Sign Up</button>
-    </form>
+    </form> -->
     <!-- Code above blocks new user signup, gives grayed out signup -->
 
     <a href="{{ url_for('auth.login') }}">Already have an account?</a>
