@@ -4,7 +4,7 @@
 PyQuiverHS is an open-source web-based application to calculate Kinetic Isotope Effects (KIE) and Equilibrium Isotope Effects (EIE) using harmonic frequencies and both the Bigeleisen-Mayer (B-M) formalism and a thermodynamic approach that partitions isotope effects into their enthalpic and entropic (H-S) components. Additionally, this program directly calculates and displays the component of each approach separately. PyQuiverHS is based on PyQuiver, which requires Cartesian Hessian matrices that can be calculated using any electronic structure program.
 
 ![Main Page](../pics/main_menu.png)
-Shown above is the main menu for PyQuiver HS.
+Shown above is the main menu for PyQuiverHS.
 
 ## FEATURES
 - Automatically read frequencies from [`Gaussian`](http://www.gaussian.com/g_prod/g09.htm) output files.
