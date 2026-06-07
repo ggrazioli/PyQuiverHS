@@ -1,4 +1,4 @@
-# Welcome to QuiverHS
+# Welcome to PyQuiverHS
 ## INTRODUCTION
 ![picture of main menu](pics/main_menu.png)
 *PyQuiverHS is a user friendly web app based on PyQuiver for calculating isotope effects.*
