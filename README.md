@@ -1,7 +1,7 @@
 # Welcome to PyQuiverHS
 ## INTRODUCTION
 ![picture of main menu](pics/main_menu.png)
-*PyQuiverHS is a user-friendly web app for calculating isotope effects with separable Bigeleisen–Mayer, enthalpic, and entropic contributions. PyQuiverHS builds on the PyQuiver code base (a Python code written by @ekwan), where the key features introduced by PyQuiverHS are the graphical user interface (GUI) - offering users a simple "point-and-click" user experience - and, the added capability of being able to analyze Bigeleisen–Mayer, enthalpic, and entropic contributions separately. The source code is shared here in the spirit and practice of open source software, but the simplest and recommended way to use PyQuiverHS is through our web app, which is free to use here:*
+*PyQuiverHS is a user-friendly web app for calculating isotope effects with separable Bigeleisen–Mayer, enthalpic, and entropic contributions. PyQuiverHS builds on the PyQuiver code base, a Python code written by @ekwan, by introducing a graphical user interface (GUI) that provides a simple point-and-click user experience and the ability to analyze Bigeleisen–Mayer, enthalpic, and entropic contributions separately. The source code is shared here in the spirit and practice of open source software, but the simplest and recommended way to use PyQuiverHS is through our web app, which is free to use here:*
 
 https://www.isotope-effects.com/ 
 
