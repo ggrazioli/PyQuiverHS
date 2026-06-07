@@ -1,11 +1,11 @@
 # Welcome to PyQuiverHS
 ## INTRODUCTION
 ![picture of main menu](pics/main_menu.png)
-*PyQuiverHS is a user friendly web app based on PyQuiver for calculating isotope effects. The best way to use PyQuiverHS is through our web app, which is free to use here:*
+*PyQuiverHS is a user-friendly web app for calculating isotope effects with separable Bigeleisen–Mayer, enthalpic, and entropic contributions. PyQuiverHS builds on the PyQuiver code base (a Python code written by @ekwan), where the key features introduced by PyQuiverHS are the graphical user interface (GUI) - offering users a simple "point-and-click" user experience - and, the added capability of being able to analyze Bigeleisen–Mayer, enthalpic, and entropic contributions separately. The source code is shared here in the spirit and practice of open source software, but the simplest and recommended way to use PyQuiverHS is through our web app, which is free to use here:*
 
 https://www.isotope-effects.com/ 
 
-PyQuiverHS is an open-source web-based application to calculate Kinetic Isotope Effects (KIE) and Equilibrium Isotope Effects (EIE) using harmonic frequencies and both the Bigeleisen-Mayer (B-M) formalism and a thermodynamic approach that partitions isotope effects into their enthalpic and entropic (H-S) components. Additionally, this program directly calculates and displays the component of each approach separately. PyQuiverHS is based on PyQuiver, which requires Cartesian Hessian matrices that can be calculated using any electronic structure program.
+PyQuiverHS is an open-source web-based application to calculate Kinetic Isotope Effects (KIE) and Equilibrium Isotope Effects (EIE) using harmonic frequencies and both the Bigeleisen-Mayer (B-M) formalism and a thermodynamic approach that partitions isotope effects into their enthalpic and entropic (H-S) components. Additionally, this program directly calculates and displays the component of each approach separately. PyQuiverHS is based on PyQuiver, which requires Cartesian Hessian matrices that can be calculated using the Gaussian electronic structure program.
 
 
 ## FEATURES
@@ -34,7 +34,23 @@ PyQuiverHS is an open-source web-based application to calculate Kinetic Isotope 
 To learn how to use this program, please see the tutorial:
 https://www.isotope-effects.com/tutorials
 
-## FURTHER READING
 ## AUTHORS
+Author Contributions for PyQuiverHS: 
+- Gianmarc Grazioli: supervision, conceptualization, software, writing-original draft. 
+- Andrew Ly: software. 
+- Dianoosh Sabetnejad: software. 
+- Anvitha Mattapalli: software.  
+- Calvin T. Nguyen: software. 
+- Daniel J. O’Leary: supervision, conceptualization, writing-original draft.
+
+Correspondance:
+- Prof. Daniel J. O'Leary, Dept. of Chemistry at Pomona College  (doleary@pomona.edu)
+- Assoc. Prof. Gianmarc Grazioli, Dept. of Chemistry at San Jose State University (gianmarc.grazioli@sjsu.edu)
+
+The repository for PyQuiver (written by @ekwan), the open-source code that provided the foundation upon which PyQuiverHS was built, is found here:
+https://github.com/ekwan/pyquiver
+
 ## HOW TO CITE
+Coming soon!
 ## LICENSE
+Coming soon!
