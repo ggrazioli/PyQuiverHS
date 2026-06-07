@@ -31,7 +31,8 @@ PyQuiverHS is an open-source web-based application to calculate Kinetic Isotope 
 - Automatically generated plots for temperature ranges.
 
 ## TUTORIALS
-To learn how to use this program, please look at the [tutorial](tutorials/TUTORIAL.md)
+To learn how to use this program, please see the tutorial:
+https://www.isotope-effects.com/tutorials
 
 ## FURTHER READING
 ## AUTHORS
