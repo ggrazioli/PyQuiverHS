@@ -43,7 +43,7 @@ Author Contributions for PyQuiverHS:
 - Calvin T. Nguyen: software. 
 - Daniel J. O’Leary: supervision, conceptualization, writing-original draft.
 
-Correspondance:
+Correspondence:
 - Prof. Daniel J. O'Leary, Dept. of Chemistry at Pomona College  (doleary@pomona.edu)
 - Assoc. Prof. Gianmarc Grazioli, Dept. of Chemistry at San Jose State University (gianmarc.grazioli@sjsu.edu)
 
