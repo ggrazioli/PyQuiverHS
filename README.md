@@ -53,4 +53,4 @@ https://github.com/ekwan/pyquiver
 ## HOW TO CITE
 Coming soon!
 ## LICENSE
-Coming soon!
+PyQuiverHS is licensed under the Apache License 2.0. See the LICENSE file for details.
