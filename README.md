@@ -52,6 +52,7 @@ https://github.com/ekwan/pyquiver
 
 ## HOW TO CITE
 A manuscript introducing PyQuiverHS is currently under peer review. It is titled:
+
 “PyQuiverHS: A Web Tool for Computing Isotope Effects”
 By: Gianmarc Grazioli<sup>1</sup>, Andrew Ly<sup>1</sup>, Dianoosh Sabetnejad<sup>1</sup>, Anvitha Mattapalli<sup>1</sup>, Calvin T. Nguyen<sup>1</sup>, and Daniel J. O’Leary<sup>2</sup> 
 1. Department of Chemistry, San José State University, San Jose, CA (USA)
