@@ -51,6 +51,15 @@ The repository for PyQuiver (written by @ekwan), the open-source code that provi
 https://github.com/ekwan/pyquiver
 
 ## HOW TO CITE
-Coming soon!
+A manuscript introducing PyQuiverHS is currently under peer review. It is titled:
+“PyQuiverHS: A Web Tool for Computing Isotope Effects”
+By: Gianmarc Grazioli<sup>1, Andrew Ly<sup>1, Dianoosh Sabetnejad<sup>1, Anvitha Mattapalli<sup>1, Calvin T. Nguyen<sup>1, and Daniel J. O’Leary<sup>2 
+1. Department of Chemistry, San José State University, San Jose, CA (USA)
+2. Department of Chemistry, Pomona College, Claremont, CA (USA)
+
+A citable preprint of our paper with a doi is available via ChemRxiv here:
+PyQuiverHS: A Web Tool for Computing Isotope Effects
+https://chemrxiv.org/doi/full/10.26434/chemrxiv.15004570/v1 
+
 ## LICENSE
 PyQuiverHS is licensed under the Apache License 2.0. See the LICENSE file for details.
