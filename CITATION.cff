@@ -44,17 +44,17 @@ type: article
 title: "PyQuiverHS: A Web Tool for Computing Isotope Effects"
 authors:
 - family-names: Grazioli
-given-names: Gianmarc
+  given-names: Gianmarc
 - family-names: Ly
-given-names: Andrew
+  given-names: Andrew
 - family-names: Sabetnejad
-given-names: Dianoosh
+  given-names: Dianoosh
 - family-names: Mattapalli
-given-names: Anvitha
+  given-names: Anvitha
 - family-names: Nguyen
-given-names: Calvin T.
+  given-names: Calvin T.
 - family-names: O'Leary
-given-names: Daniel J.
+  given-names: Daniel J.
 journal: "ChemRxiv"
 year: 2026
 doi: "10.26434/chemrxiv.15004570.v1"
