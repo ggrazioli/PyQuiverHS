@@ -1,0 +1,66 @@
+cff-version: 1.2.0
+
+message: "If you use PyQuiverHS in your research, please cite the associated ChemRxiv preprint."
+
+title: "PyQuiverHS"
+type: software
+
+authors:
+
+* family-names: Grazioli
+  given-names: Gianmarc
+  affiliation: "Department of Chemistry, San José State University"
+  email: "[gianmarc.grazioli@sjsu.edu](mailto:gianmarc.grazioli@sjsu.edu)"
+
+* family-names: Ly
+  given-names: Andrew
+  affiliation: "Department of Chemistry, San José State University"
+
+* family-names: Sabetnejad
+  given-names: Dianoosh
+  affiliation: "Department of Chemistry, San José State University"
+
+* family-names: Mattapalli
+  given-names: Anvitha
+  affiliation: "Department of Chemistry, San José State University"
+
+* family-names: Nguyen
+  given-names: Calvin T.
+  affiliation: "Department of Chemistry, San José State University"
+
+* family-names: O'Leary
+  given-names: Daniel J.
+  affiliation: "Department of Chemistry, Pomona College"
+
+repository-code: "https://github.com/ggrazioli/PyQuiverHS"
+url: "https://www.isotope-effects.com"
+license: "Apache-2.0"
+
+keywords:
+
+* isotope effects
+* kinetic isotope effects
+* equilibrium isotope effects
+* computational chemistry
+* chemistry software
+
+preferred-citation:
+type: article
+title: "PyQuiverHS: A Web Tool for Computing Isotope Effects"
+authors:
+- family-names: Grazioli
+given-names: Gianmarc
+- family-names: Ly
+given-names: Andrew
+- family-names: Sabetnejad
+given-names: Dianoosh
+- family-names: Mattapalli
+given-names: Anvitha
+- family-names: Nguyen
+given-names: Calvin T.
+- family-names: O'Leary
+given-names: Daniel J.
+journal: "ChemRxiv"
+year: 2026
+doi: "10.26434/chemrxiv.15004570.v1"
+url: "https://chemrxiv.org/doi/full/10.26434/chemrxiv.15004570/v1" 
