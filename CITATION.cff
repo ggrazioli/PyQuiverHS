@@ -6,23 +6,23 @@ type: software
 
 authors:
 
-* family-names: Grazioli
+- family-names: Grazioli
   given-names: Gianmarc
   affiliation: "Department of Chemistry, San José State University"
   email: "gianmarc.grazioli@sjsu.edu"
-* family-names: Ly
+- family-names: Ly
   given-names: Andrew
   affiliation: "Department of Chemistry, San José State University"
-* family-names: Sabetnejad
+- family-names: Sabetnejad
   given-names: Dianoosh
   affiliation: "Department of Chemistry, San José State University"
-* family-names: Mattapalli
+- family-names: Mattapalli
   given-names: Anvitha
   affiliation: "Department of Chemistry, San José State University"
-* family-names: Nguyen
+- family-names: Nguyen
   given-names: Calvin T.
   affiliation: "Department of Chemistry, San José State University"
-* family-names: O'Leary
+- family-names: O'Leary
   given-names: Daniel J.
   affiliation: "Department of Chemistry, Pomona College"
   email: "doleary@pomona.edu"
@@ -33,11 +33,11 @@ license: "Apache-2.0"
 
 keywords:
 
-* isotope effects
-* kinetic isotope effects
-* equilibrium isotope effects
-* computational chemistry
-* chemistry software
+- isotope effects
+- kinetic isotope effects
+- equilibrium isotope effects
+- computational chemistry
+- chemistry software
 
 preferred-citation:
 type: article
