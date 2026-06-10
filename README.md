@@ -51,6 +51,9 @@ The repository for PyQuiver (written by @ekwan), the open-source code that provi
 https://github.com/ekwan/pyquiver
 
 ## HOW TO CITE
+
+If you use PyQuiverHS in your research, please cite the associated publication. GitHub provides citation information for this software in multiple formats via the "Cite this repository" button near the top of the repository page.
+
 A manuscript introducing PyQuiverHS is currently under peer review. It is titled:
 
 “PyQuiverHS: A Web Tool for Computing Isotope Effects”
