@@ -40,22 +40,22 @@ keywords:
 - chemistry software
 
 preferred-citation:
-type: article
-title: "PyQuiverHS: A Web Tool for Computing Isotope Effects"
-authors:
-- family-names: Grazioli
-  given-names: Gianmarc
-- family-names: Ly
-  given-names: Andrew
-- family-names: Sabetnejad
-  given-names: Dianoosh
-- family-names: Mattapalli
-  given-names: Anvitha
-- family-names: Nguyen
-  given-names: Calvin T.
-- family-names: O'Leary
-  given-names: Daniel J.
-journal: "ChemRxiv"
-year: 2026
-doi: "10.26434/chemrxiv.15004570.v1"
-url: "https://chemrxiv.org/doi/full/10.26434/chemrxiv.15004570/v1"
+  type: article
+  title: "PyQuiverHS: A Web Tool for Computing Isotope Effects"
+  authors:
+  - family-names: Grazioli
+    given-names: Gianmarc
+  - family-names: Ly
+    given-names: Andrew
+  - family-names: Sabetnejad
+    given-names: Dianoosh
+  - family-names: Mattapalli
+    given-names: Anvitha
+  - family-names: Nguyen
+    given-names: Calvin T.
+  - family-names: O'Leary
+    given-names: Daniel J.
+  journal: "ChemRxiv"
+  year: 2026
+  doi: "10.26434/chemrxiv.15004570.v1"
+  url: "https://chemrxiv.org/doi/full/10.26434/chemrxiv.15004570/v1"
