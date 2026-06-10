@@ -9,7 +9,7 @@ authors:
 * family-names: Grazioli
   given-names: Gianmarc
   affiliation: "Department of Chemistry, San José State University"
-  email: "[gianmarc.grazioli@sjsu.edu](mailto:gianmarc.grazioli@sjsu.edu)"
+  email: "gianmarc.grazioli@sjsu.edu"
 * family-names: Ly
   given-names: Andrew
   affiliation: "Department of Chemistry, San José State University"
@@ -25,6 +25,7 @@ authors:
 * family-names: O'Leary
   given-names: Daniel J.
   affiliation: "Department of Chemistry, Pomona College"
+  email: "doleary@pomona.edu"
 
 repository-code: "https://github.com/ggrazioli/PyQuiverHS"
 url: "https://www.isotope-effects.com"
