@@ -1,5 +1,4 @@
 cff-version: 1.2.0
-
 message: "If you use PyQuiverHS in your research, please cite the associated ChemRxiv preprint."
 
 title: "PyQuiverHS"
@@ -11,23 +10,18 @@ authors:
   given-names: Gianmarc
   affiliation: "Department of Chemistry, San José State University"
   email: "[gianmarc.grazioli@sjsu.edu](mailto:gianmarc.grazioli@sjsu.edu)"
-
 * family-names: Ly
   given-names: Andrew
   affiliation: "Department of Chemistry, San José State University"
-
 * family-names: Sabetnejad
   given-names: Dianoosh
   affiliation: "Department of Chemistry, San José State University"
-
 * family-names: Mattapalli
   given-names: Anvitha
   affiliation: "Department of Chemistry, San José State University"
-
 * family-names: Nguyen
   given-names: Calvin T.
   affiliation: "Department of Chemistry, San José State University"
-
 * family-names: O'Leary
   given-names: Daniel J.
   affiliation: "Department of Chemistry, Pomona College"
@@ -63,4 +57,4 @@ given-names: Daniel J.
 journal: "ChemRxiv"
 year: 2026
 doi: "10.26434/chemrxiv.15004570.v1"
-url: "https://chemrxiv.org/doi/full/10.26434/chemrxiv.15004570/v1" 
+url: "https://chemrxiv.org/doi/full/10.26434/chemrxiv.15004570/v1"
