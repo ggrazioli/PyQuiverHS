@@ -790,7 +790,7 @@ def paper():
             "paper.pdf",
             mimetype="application/pdf",
             as_attachment=True,
-            download_name="technical_paper.pdf",
+            download_name="cite_PyQuiverHS.pdf",
         )
 
 
