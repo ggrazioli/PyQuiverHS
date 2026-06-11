@@ -16,9 +16,15 @@ sessions/
 # Mac OS data
 .DS_Store
 
+# Archives and backups
+_archives/
+
 Local database and secrets
 instance/
 .env
 .venv/
 
-
+# SQLite databases
+*.db
+*.sqlite
+*.sqlite3
