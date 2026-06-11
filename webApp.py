@@ -113,6 +113,10 @@ def landing():
 def home():
     return render_template("mainMenu.html")
 
+# Load the citation page
+@app.route("/citation")
+def citation():
+    return render_template("citation.html")
 
 # Load the KIE Calculation page
 @app.route("/kie", methods=["GET", "POST"])
