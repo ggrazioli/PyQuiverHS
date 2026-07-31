@@ -20,7 +20,7 @@ After generating the configuration file, along with obtaining the Gaussian files
  ![KIE PAGE](../pics/kie.png)
 
 Once done, you will receive a .zip file that includes a text file for each temperature in the temperature range, a .csv file that includes all of the output values, and a plot across the temperature range. Below is an example using the provided Gaussian files and a generated configuration file temperatures ranging from 273.15K to 298.15K, with increments of 1K.
-![KIE EXAMPLE FOLDER](../pics/kie_output_folder.png)
+<!-- ![KIE EXAMPLE FOLDER](../pics/kie_output_folder.png) -->
 ![KIE EXAMPLE CSV](../pics/kie_output.png)
-![KIE PLOT](../pics/plot.png)
+<!-- ![KIE PLOT](../pics/plot.png) -->
 
