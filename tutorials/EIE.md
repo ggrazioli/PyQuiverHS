@@ -17,5 +17,5 @@ After generating the configuration file, along with obtaining the Gaussian file 
 5. Press 'Calculate!'
  ![EIE PAGE](../pics/eie.png)
 
- If done correctly, you will receive a .zip file that includes a .txt file for each temperature in the temperature range, a .csv file that combines all of the outputs, and a plot across the temperatures. Below is an example of the output .txt, produced using the provided files:
+ If done correctly, you will receive a .zip file that includes a .txt file for each temperature in the temperature range, a .csv file that combines all of the outputs, and a plot across the temperatures. Below is an example produced using the provided files:
  ![EIE EXAMPLE](../pics/eie_example.png)
